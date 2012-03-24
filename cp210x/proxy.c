@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
+#include "hexdump.h"
 
 /* make sure we use proper attributes */
 #undef SI_USB_XP_EXPORTS
