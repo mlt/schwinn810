@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <ctype.h>
 
+/* Taken from http://stahlworks.com/dev/index.php?tool=csc01 */
+
 void hexdump(void *pAddressIn, long  lSize)
 {
-  char szBuf[100];
+  char szBuf[10240];
   long lIndent = 1;
   long lOutLen, lIndex, lIndex2, lOutLen2;
   long lRelPos;

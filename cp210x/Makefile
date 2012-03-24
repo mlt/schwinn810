@@ -1,14 +1,15 @@
-CC=i586-mingw32msvc-gcc
-CXX=i586-mingw32msvc-g++
-LD=i586-mingw32msvc-ld
-DLLTOOL=i586-mingw32msvc-dlltool
+#CC=i586-mingw32msvc-gcc
+#CXX=i586-mingw32msvc-g++
+#LD=i586-mingw32msvc-ld
+#DLLTOOL=i586-mingw32msvc-dlltool
+DLLTOOL=dlltool
 
 all: SiUSBXp.dll test.exe libSiUSBXp.a
 
 #CXXFLAGS=-DSI_USB_XP_EXPORTS
 #-Wl,--output-def,my.def
 # It is important to keep ordinals in def file
-SiUSBXp.dll: proxy.o hexdump.o SiUSBXp.def
+SiUSBXp.dll: proxy.o hexdump.o SiUSBXp.def | libSiUSBXp.a
 	$(CXX) -shared  -Wl,--enable-stdcall-fixup -o $@ $^ -L. -lSiUSBXp
 
 # | libSiUSBXp.a # use this prereq only for direct linking tests
