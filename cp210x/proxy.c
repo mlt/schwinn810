@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include "hexdump.h"
+#include "log.h"
 
 /* make sure we use proper attributes */
 #undef SI_USB_XP_EXPORTS
@@ -15,7 +16,7 @@ SI_STATUS WINAPI proxySI_GetNumDevices(
 	)
 {
   SI_STATUS err = SI_GetNumDevices(lpdwNumDevices);
-  printf("%X = GetNumDevices(NumDevices=>%X\n", err, *lpdwNumDevices);
+  fprintf(file, "%X = GetNumDevices(NumDevices=>%X\n", err, *lpdwNumDevices);
   return err;
 }
 
@@ -27,7 +28,8 @@ SI_STATUS WINAPI proxySI_GetProductString(
 	)
 {
   SI_STATUS err = SI_GetProductString(dwDeviceNum, lpvDeviceString, dwFlags);
-  printf("\n");
+  fprintf(file, "%X = SI_GetProductString(Device#=%X, &DeviceString, Flags=%X\n", err, dwDeviceNum, dwFlags);
+hexdump(lpvDeviceString, SI_MAX_DEVICE_STRLEN);
   return err;
 }
 
@@ -38,7 +40,7 @@ SI_STATUS WINAPI proxySI_Open(
 	) 
 {
   SI_STATUS err = SI_Open(dwDevice, cyHandle);
-  printf("\n");
+  fprintf(file, "SI_Open(dwDevice, cyHandle)\n");
   return err;
 }
 
@@ -48,7 +50,7 @@ SI_STATUS WINAPI proxySI_Close(
 	)
 {
   SI_STATUS err = SI_Close(cyHandle);
-  printf("\n");
+  fprintf(file, "SI_Close(cyHandle)\n");
   return err;
 }
 
@@ -62,7 +64,8 @@ SI_STATUS WINAPI proxySI_Read(
 	)
 {
   SI_STATUS err = SI_Read(cyHandle, lpBuffer, dwBytesToRead, lpdwBytesReturned, o);
-  printf("\n");
+  fprintf(file, "SI_Read(cyHandle, lpBuffer, dwBytesToRead, lpdwBytesReturned, o)\n");
+  hexdump(lpBuffer, *lpdwBytesReturned);
   return err;
 }
 
@@ -76,7 +79,8 @@ SI_STATUS WINAPI proxySI_Write(
 	)
 {
   SI_STATUS err = SI_Write(cyHandle, lpBuffer, dwBytesToWrite, lpdwBytesWritten, o);
-  printf("\n");
+  fprintf(file, "SI_Write(cyHandle, lpBuffer, dwBytesToWrite, lpdwBytesWritten, o)\n");
+  hexdump(lpBuffer, dwBytesToWrite);
   return err;
 }
 
@@ -92,7 +96,7 @@ SI_STATUS WINAPI proxySI_DeviceIOControl(
 	)
 {
   SI_STATUS err = SI_DeviceIOControl(cyHandle, dwIoControlCode, lpInBuffer, dwBytesToRead, lpOutBuffer, dwBytesToWrite, lpdwBytesSucceeded);
-  printf("\n");
+  fprintf(file, "SI_DeviceIOControl(cyHandle, dwIoControlCode, lpInBuffer, dwBytesToRead, lpOutBuffer, dwBytesToWrite, lpdwBytesSucceeded)\n");
   return err;
 }
 
@@ -104,7 +108,7 @@ SI_STATUS WINAPI proxySI_FlushBuffers(
 	)
 {
   SI_STATUS err = SI_FlushBuffers(cyHandle, FlushTransmit, FlushReceive);
-  printf("\n");
+  fprintf(file, "SI_FlushBuffers(cyHandle, FlushTransmit, FlushReceive)\n");
   return err;
 }
 
@@ -115,7 +119,7 @@ SI_STATUS WINAPI proxySI_SetTimeouts(
 	)
 {
   SI_STATUS err = SI_SetTimeouts(dwReadTimeout, dwWriteTimeout);
-  printf("\n");
+  fprintf(file, "SI_SetTimeouts(dwReadTimeout, dwWriteTimeout)\n");
   return err;
 }
 
@@ -126,7 +130,7 @@ SI_STATUS WINAPI proxySI_GetTimeouts(
 	)
 {
   SI_STATUS err = SI_GetTimeouts(lpdwReadTimeout, lpdwWriteTimeout);
-  printf("\n");
+  fprintf(file, "SI_GetTimeouts(lpdwReadTimeout, lpdwWriteTimeout)\n");
   return err;
 }
 
@@ -138,7 +142,7 @@ SI_STATUS WINAPI proxySI_CheckRXQueue(
 	)
 {
   SI_STATUS err = SI_CheckRXQueue(cyHandle, lpdwNumBytesInQueue, lpdwQueueStatus);
-  printf("\n");
+  fprintf(file, "SI_CheckRXQueue(cyHandle, lpdwNumBytesInQueue, lpdwQueueStatus)\n");
   return err;
 }
 
@@ -149,7 +153,7 @@ SI_STATUS	WINAPI proxySI_SetBaudRate(
 	)
 {
   SI_STATUS err = SI_SetBaudRate(cyHandle, dwBaudRate);
-  printf("\n");
+  fprintf(file, "SI_SetBaudRate(cyHandle, dwBaudRate)\n");
   return err;
 }
 
@@ -160,7 +164,7 @@ SI_STATUS	WINAPI proxySI_SetBaudDivisor(
 	)
 {
   SI_STATUS err = SI_SetBaudDivisor(cyHandle, wBaudDivisor);
-  printf("\n");
+  fprintf(file, "SI_SetBaudDivisor(cyHandle, wBaudDivisor)\n");
   return err;
 }
 
@@ -171,7 +175,7 @@ SI_STATUS	WINAPI proxySI_SetLineControl(
 	)
 {
   SI_STATUS err = SI_SetLineControl(cyHandle, wLineControl);
-  printf("\n");
+  fprintf(file, "SI_SetLineControl(cyHandle, wLineControl)\n");
   return err;
 }
 
@@ -187,7 +191,7 @@ SI_STATUS	WINAPI proxySI_SetFlowControl(
 	)
 {
   SI_STATUS err = SI_SetFlowControl(cyHandle, bCTS_MaskCode, bRTS_MaskCode, bDTR_MaskCode, bDSR_MaskCode, bDCD_MaskCode, bFlowXonXoff);
-  printf("\n");
+  fprintf(file, "SI_SetFlowControl(cyHandle, bCTS_MaskCode, bRTS_MaskCode, bDTR_MaskCode, bDSR_MaskCode, bDCD_MaskCode, bFlowXonXoff)\n");
   return err;
 }
 
@@ -198,7 +202,7 @@ SI_STATUS WINAPI proxySI_GetModemStatus(
 	)
 {
   SI_STATUS err = SI_GetModemStatus(cyHandle, ModemStatus);
-  printf("\n");
+  fprintf(file, "SI_GetModemStatus\n");
   return err;
 }
 
@@ -209,7 +213,7 @@ SI_STATUS WINAPI proxySI_SetBreak(
 	)
 {
   SI_STATUS err = SI_SetBreak(cyHandle, wBreakState);
-  printf("\n");
+  fprintf(file, "SI_SetBreak\n");
   return err;
 }
 
@@ -220,7 +224,7 @@ SI_STATUS WINAPI proxySI_ReadLatch(
 	)
 {
   SI_STATUS err = SI_ReadLatch(cyHandle, lpbLatch);
-  printf("\n");
+  fprintf(file, "SI_ReadLatch(cyHandle, lpbLatch)\n");
   return err;
 }
 
@@ -232,7 +236,7 @@ SI_STATUS WINAPI proxySI_WriteLatch(
 	)
 {
   SI_STATUS err = SI_WriteLatch(cyHandle, bMask, bLatch);
-  printf("\n");
+  fprintf(file, "SI_WriteLatch(cyHandle, bMask, bLatch)\n");
   return err;
 }
 
@@ -243,7 +247,7 @@ SI_STATUS WINAPI proxySI_GetPartNumber(
 	)
 {
   SI_STATUS err = SI_GetPartNumber(cyHandle, lpbPartNum);
-  printf("\n");
+  fprintf(file, "SI_GetPartNumber(cyHandle, lpbPartNum)\n");
   return err;
 }
 
@@ -256,8 +260,8 @@ SI_STATUS WINAPI proxySI_GetDeviceProductString(
 	)
 {
   SI_STATUS err = SI_GetDeviceProductString(cyHandle, lpProduct, lpbLength, bConvertToASCII);
-  printf("%X = SI_GetDeviceProductString(cyHandle=%X, &Product, &Length=%X, bConvertToASCII=%d)\n", err, cyHandle, lpbLength, bConvertToASCII);
-  printf("lpProduct:\n");
+  fprintf(file, "%X = SI_GetDeviceProductString(cyHandle=%X, &Product, &Length=%X, bConvertToASCII=%d)\n", err, cyHandle, lpbLength, bConvertToASCII);
+  fprintf(file, "lpProduct:\n");
   hexdump(lpProduct, *lpbLength);
   return err;
 }
@@ -269,8 +273,8 @@ SI_STATUS WINAPI proxySI_GetDLLVersion(
 	)
 {
   SI_STATUS err = SI_GetDLLVersion(HighVersion, LowVersion);
-  printf("%X = SI_GetDLLVersion(&HighVersion, &LowVersion)\n", err);
-  printf("HighVersion = %lX, LowVersion = %lX\n", *HighVersion, *LowVersion);
+  fprintf(file, "%X = SI_GetDLLVersion(&HighVersion, &LowVersion)\n", err);
+  fprintf(file, "HighVersion = %lX, LowVersion = %lX\n", *HighVersion, *LowVersion);
   return err;
 }
 
@@ -281,59 +285,7 @@ SI_STATUS WINAPI proxySI_GetDriverVersion(
 	)
 {
   SI_STATUS err = SI_GetDriverVersion(HighVersion, LowVersion);
-  printf("%X = SI_GetDriverVersion(&HighVersion, &LowVersion)\n", err);
-  printf("HighVersion = %lX, LowVersion = %lX\n", *HighVersion, *LowVersion);
+  fprintf(file, "%X = SI_GetDriverVersion(&HighVersion, &LowVersion)\n", err);
+  fprintf(file, "HighVersion = %lX, LowVersion = %lX\n", *HighVersion, *LowVersion);
   return err;
 }
-
-
-
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_GetDLLVersion( */
-/*   DWORD* HighVersion, */
-/*   DWORD* LowVersion */
-/*   ) */
-
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_GetNumDevices() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_GetProductString() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_Close() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_Read() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_Write() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_DeviceIOControl() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_FlushBuffers() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_SetTimeouts() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_GetTimeouts() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_CheckRXQueue() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_SetBaudRate() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_SetBaudDivisor() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_SetLineControl() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_SetFlowControl() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_GetModemStatus() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_SetBreak() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_ReadLatch() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_WriteLatch() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_GetPartNumber() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_GetDeviceProductString() { return SI_SUCCESS; } */
-/* SI_USB_XP_API  */
-/* SI_STATUS WINAPI proxySI_GetDriverVersion() { return SI_SUCCESS; } */
-

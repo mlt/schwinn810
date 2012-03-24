@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
+#include "log.h"
 
 /* Taken from http://stahlworks.com/dev/index.php?tool=csc01 */
 
@@ -49,7 +50,7 @@ void hexdump(void *pAddressIn, long  lSize)
       szBuf[lIndex  ]   = '<';
       szBuf[lIndex+1]   = ' ';
 
-      printf("%s\n", szBuf);
+      fprintf(file, "%s\n", szBuf);
 
       buf.pData   += lOutLen;
       buf.lSize   -= lOutLen;
