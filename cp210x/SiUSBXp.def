@@ -1,0 +1,25 @@
+LIBRARY "SiUSBXp.dll"
+
+EXPORTS
+SI_GetNumDevices = proxySI_GetNumDevices @1
+SI_GetProductString = proxySI_GetProductString @2
+SI_Close = proxySI_Close @4
+SI_Read = proxySI_Read @6
+SI_Write = proxySI_Write @7
+SI_DeviceIOControl = proxySI_DeviceIOControl @8
+SI_FlushBuffers = proxySI_FlushBuffers @9
+SI_SetTimeouts = proxySI_SetTimeouts @10
+SI_GetTimeouts = proxySI_GetTimeouts @11
+SI_CheckRXQueue = proxySI_CheckRXQueue @12
+SI_SetBaudRate = proxySI_SetBaudRate @13
+SI_SetBaudDivisor = proxySI_SetBaudDivisor @14
+SI_SetLineControl = proxySI_SetLineControl @15
+SI_SetFlowControl = proxySI_SetFlowControl @16
+SI_GetModemStatus = proxySI_GetModemStatus @17
+SI_SetBreak = proxySI_SetBreak @18
+SI_ReadLatch = proxySI_ReadLatch @19
+SI_WriteLatch = proxySI_WriteLatch @20
+SI_GetPartNumber = proxySI_GetPartNumber @21
+SI_GetDeviceProductString = proxySI_GetDeviceProductString @25
+SI_GetDLLVersion = proxySI_GetDLLVersion @22
+SI_GetDriverVersion = proxySI_GetDriverVersion @23

@@ -1,0 +1,25 @@
+LIBRARY "SiUSBXp_orig.dll"
+
+EXPORTS
+SI_GetNumDevices
+SI_GetProductString
+SI_Close
+SI_Read
+SI_Write
+SI_DeviceIOControl
+SI_FlushBuffers
+SI_SetTimeouts
+SI_GetTimeouts
+SI_CheckRXQueue
+SI_SetBaudRate
+SI_SetBaudDivisor
+SI_SetLineControl
+SI_SetFlowControl
+SI_GetModemStatus
+SI_SetBreak
+SI_ReadLatch
+SI_WriteLatch
+SI_GetPartNumber
+SI_GetDeviceProductString
+SI_GetDLLVersion@8
+SI_GetDriverVersion
