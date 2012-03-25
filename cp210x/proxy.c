@@ -16,7 +16,7 @@ SI_STATUS WINAPI proxySI_GetNumDevices(
 	)
 {
   SI_STATUS err = SI_GetNumDevices(lpdwNumDevices);
-  fprintf(file, "%X = GetNumDevices(NumDevices=>%X)\n", err, *lpdwNumDevices);
+  fprintf(file, "0x%X = GetNumDevices(NumDevices=>0x%X)\n", err, *lpdwNumDevices);
   return err;
 }
 
@@ -28,7 +28,7 @@ SI_STATUS WINAPI proxySI_GetProductString(
 	)
 {
   SI_STATUS err = SI_GetProductString(dwDeviceNum, lpvDeviceString, dwFlags);
-  fprintf(file, "%X = SI_GetProductString(Device#=%X, &DeviceString, Flags=%X\n", err, dwDeviceNum, dwFlags);
+  fprintf(file, "0x%X = SI_GetProductString(Device#=0x%X, &DeviceString, Flags=0x%X\n", err, dwDeviceNum, dwFlags);
   hexdump(lpvDeviceString, SI_MAX_DEVICE_STRLEN);
   return err;
 }
@@ -40,7 +40,7 @@ SI_STATUS WINAPI proxySI_Open(
 	) 
 {
   SI_STATUS err = SI_Open(dwDevice, cyHandle);
-  fprintf(file, "%X = SI_Open(dwDevice=%X, cyHandle=>%X)\n", err, dwDevice, *cyHandle);
+  fprintf(file, "0x%X = SI_Open(dwDevice=0x%X, cyHandle=>0x%X)\n", err, dwDevice, *cyHandle);
   return err;
 }
 
@@ -50,7 +50,7 @@ SI_STATUS WINAPI proxySI_Close(
 	)
 {
   SI_STATUS err = SI_Close(cyHandle);
-  fprintf(file, "%X = SI_Close(cyHandle=%X)\n", err, cyHandle);
+  fprintf(file, "0x%X = SI_Close(cyHandle=0x%X)\n", err, cyHandle);
   return err;
 }
 
@@ -64,7 +64,7 @@ SI_STATUS WINAPI proxySI_Read(
 	)
 {
   SI_STATUS err = SI_Read(cyHandle, lpBuffer, dwBytesToRead, lpdwBytesReturned, o);
-  fprintf(file, "%X = SI_Read(cyHandle=%X, lpBuffer, dwBytesToRead=%X, lpdwBytesReturned=>%X, o=%X)\n", err, dwBytesToRead, *lpdwBytesReturned, o);
+  fprintf(file, "0x%X = SI_Read(cyHandle=0x%X, lpBuffer, dwBytesToRead=0x%X, lpdwBytesReturned=>0x%X, o=0x%X)\n", err, dwBytesToRead, *lpdwBytesReturned, o);
   hexdump(lpBuffer, *lpdwBytesReturned);
   return err;
 }
@@ -79,7 +79,7 @@ SI_STATUS WINAPI proxySI_Write(
 	)
 {
   SI_STATUS err = SI_Write(cyHandle, lpBuffer, dwBytesToWrite, lpdwBytesWritten, o);
-  fprintf(file, "%X = SI_Write(cyHandle=%X, lpBuffer, dwBytesToWrite=%X, lpdwBytesWritten=%X, o=%X)\n", err, dwBytesToWrite, *lpdwBytesWritten, o);
+  fprintf(file, "0x%X = SI_Write(cyHandle=0x%X, lpBuffer, dwBytesToWrite=0x%X, lpdwBytesWritten=0x%X, o=0x%X)\n", err, dwBytesToWrite, *lpdwBytesWritten, o);
   hexdump(lpBuffer, dwBytesToWrite);
   return err;
 }
@@ -108,7 +108,7 @@ SI_STATUS WINAPI proxySI_FlushBuffers(
 	)
 {
   SI_STATUS err = SI_FlushBuffers(cyHandle, FlushTransmit, FlushReceive);
-  fprintf(file, "%X = SI_FlushBuffers(cyHandle=%X, FlushTransmit=%X, FlushReceive=%X)\n", err, cyHandle, FlushTransmit, FlushReceive);
+  fprintf(file, "0x%X = SI_FlushBuffers(cyHandle=0x%X, FlushTransmit=0x%X, FlushReceive=0x%X)\n", err, cyHandle, FlushTransmit, FlushReceive);
   return err;
 }
 
@@ -119,7 +119,7 @@ SI_STATUS WINAPI proxySI_SetTimeouts(
 	)
 {
   SI_STATUS err = SI_SetTimeouts(dwReadTimeout, dwWriteTimeout);
-  fprintf(file, "%X = SI_SetTimeouts(dwReadTimeout=%X, dwWriteTimeout=%X)\n", err, dwReadTimeout, dwWriteTimeout);
+  fprintf(file, "0x%X = SI_SetTimeouts(dwReadTimeout=0x%X, dwWriteTimeout=0x%X)\n", err, dwReadTimeout, dwWriteTimeout);
   return err;
 }
 
@@ -153,7 +153,7 @@ SI_STATUS	WINAPI proxySI_SetBaudRate(
 	)
 {
   SI_STATUS err = SI_SetBaudRate(cyHandle, dwBaudRate);
-  fprintf(file, "%X = SI_SetBaudRate(cyHandle=%X, dwBaudRate=%d)\n", err, cyHandle, dwBaudRate);
+  fprintf(file, "0x%X = SI_SetBaudRate(cyHandle=0x%X, dwBaudRate=%d)\n", err, cyHandle, dwBaudRate);
   return err;
 }
 
@@ -261,7 +261,7 @@ SI_STATUS WINAPI proxySI_GetDeviceProductString(
 	)
 {
   SI_STATUS err = SI_GetDeviceProductString(cyHandle, lpProduct, lpbLength, bConvertToASCII);
-  fprintf(file, "%X = SI_GetDeviceProductString(cyHandle=%X, &Product, &Length=%X, bConvertToASCII=%d)\n", err, cyHandle, lpbLength, bConvertToASCII);
+  fprintf(file, "0x%X = SI_GetDeviceProductString(cyHandle=0x%X, &Product, &Length=0x%X, bConvertToASCII=%d)\n", err, cyHandle, lpbLength, bConvertToASCII);
   fprintf(file, "lpProduct:\n");
   hexdump(lpProduct, *lpbLength);
   return err;
@@ -274,7 +274,7 @@ SI_STATUS WINAPI proxySI_GetDLLVersion(
 	)
 {
   SI_STATUS err = SI_GetDLLVersion(HighVersion, LowVersion);
-  fprintf(file, "%X = SI_GetDLLVersion(&HighVersion, &LowVersion)\n", err);
+  fprintf(file, "0x%X = SI_GetDLLVersion(&HighVersion, &LowVersion)\n", err);
   fprintf(file, "HighVersion = %lX, LowVersion = %lX\n", *HighVersion, *LowVersion);
   return err;
 }
@@ -286,7 +286,7 @@ SI_STATUS WINAPI proxySI_GetDriverVersion(
 	)
 {
   SI_STATUS err = SI_GetDriverVersion(HighVersion, LowVersion);
-  fprintf(file, "%X = SI_GetDriverVersion(&HighVersion, &LowVersion)\n", err);
+  fprintf(file, "0x%X = SI_GetDriverVersion(&HighVersion, &LowVersion)\n", err);
   fprintf(file, "HighVersion = %lX, LowVersion = %lX\n", *HighVersion, *LowVersion);
   return err;
 }
