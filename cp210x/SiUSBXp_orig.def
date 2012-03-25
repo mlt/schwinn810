@@ -5,8 +5,8 @@ SI_GetNumDevices@4
 SI_GetProductString@12
 SI_Open@8
 SI_Close@4
-SI_Read@20
-SI_Write@20
+SI_Read@16
+SI_Write@16
 SI_DeviceIOControl@28
 SI_FlushBuffers@12
 SI_SetTimeouts@8
