@@ -93,6 +93,7 @@ for track in range(tracks):
         ptsWriter.writerow([dist/100, speed, time, hrm, inzone, lat, lon, cal, z/100, pt])
         pts = pts - 1
 
+last = port.read()
 port.write(disconnect)
 port.close()
 
