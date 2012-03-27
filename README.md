@@ -35,5 +35,6 @@ At this point one should not expect an exact copy of software for other OSes.
 1. <del> Code proxy and transcribe communication making it possible for others to develop software independently.</del>
 2. Improve [data format](https://github.com/mlt/schwinn810/wiki/Data-Format) details.
 3. <del>Write some python (?) code that dumps data from serial port into *CSV*</del>
+4. Make it more [unicsv](http://www.gpsbabel.org/htmldoc-development/fmt_unicsv.html)-friendly so [gpsbabel](http://www.gpsbabel.org) can convert data to [GPX](http://www.gpsbabel.org/htmldoc-development/fmt_gpx.html) and/or [TCX](http://www.gpsbabel.org/htmldoc-development/fmt_gtrnctr.html).
 4. Write some GUI, R code
 5. Export to various web sites
