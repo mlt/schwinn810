@@ -3,12 +3,12 @@ import argparse
 import struct
 import csv
 import serial
-from time import sleep
+from sys import exit
 #from yaml import load, dump
 
 parser = argparse.ArgumentParser(description='Download tracks from Schwinn 810 GPS sport watches with HRM.')
 parser.add_argument('--port', nargs=1, dest='port',# action='store_const',const='/dev/ttyUSB0', 
-                   default='/dev/ttyUSB0', #required=True,
+                   default=['/dev/ttyUSB0'], #required=True,
                    help='Virtual COM port created by cp201x for Schwinn 810 watches')
 parser.add_argument('--delete', dest='delete', action='store_true',
                    help='Delete all data from watches after download?')
@@ -38,10 +38,18 @@ def pack_coord(c0, hemi):
     return c
 
 #serial.Serial("COM5", 115200, timeout=20, writeTimeout=20)
-port = serial.Serial("/dev/ttyUSB0", 115200) #, timeout=50, writeTimeout=50)
-port.open()
+port = serial.Serial(args.port[0], 115200, timeout=1, writeTimeout=1)
+try:
+    port.open()
+except serial.SerialException as e:
+    print("Port can't be opened :(")
+    exit(-1)
+
 port.write(connect)
 raw = port.read(0x24)
+if len(raw)==0:
+    print("Did you plug your watches? Check the clip!")
+    exit(-1)
 (ee, e1, e2, e3, bcd1, bcd2, bcd3, serial, v1, v2, check1, check2) = struct.unpack("sBBBBBB6s5s8s2x2I", raw)
 ## check1 == check2
 #q = "%s %s %s %02d %02d %02d %02d %02d %02d" % (serial, v1, ee, e1, e2, e3, unpackBCD(bcd1), unpackBCD(bcd2), unpackBCD(bcd3))
