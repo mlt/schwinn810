@@ -50,27 +50,27 @@ id = "{0:s} {1:s} {2:s} {3:02d} {4:02d} {5:02d} {6:02d} {7:02d} {8:02d}" \
 print("Found %s" % id)
 port.write(download)
 raw = port.read(0x24)
-(tracks,) = struct.unpack("28xB7x", raw)
+(tracks,) = struct.unpack("=28xH6x", raw)
 print("We've got %d tracks" % tracks)
 for track in range(tracks):
     raw = port.read(0x24)
-    (min1, hr1, dd1, mm1, yr1, laps, hrm, pts, name0, ahr, min2, hr2, dd2, mm2, yr2) = \
-        struct.unpack(">x5BH4xBxHxx7sB5B5x", raw)
+    (x1,min1, hr1, dd1, mm1, yr1, laps, x2, x3, hrm, avspd, pts, x5, name0, ahr, min2, hr2, dd2, mm2, yr2) = \
+        struct.unpack(">B5BHHHBBHH7sB5B5x", raw)
     start="%02d/%02d/%02d %d:%d" % (mm1,dd1,yr1, hr1,min1)
     end="%02d/%02d/%02d %d:%d" % (mm2,dd2,yr2, hr2,min2)
     name = name0.decode('ascii')
     print("There are %d laps in %s" % (laps-1, name))
     trkWriter = csv.writer(open('%s.track' % name, 'w'))
-    trkWriter.writerow(["Start", "End", "Laps"])
-    trkWriter.writerow([start, end, laps])
+    trkWriter.writerow(["Start", "End", "Laps","MaxPulse","AveragePulse","x1","x2","x3","AvSpeed","x5"])
+    trkWriter.writerow([start, end, laps, hrm, ahr, x1, x2, x3, avsp, x5])
     lapWriter = csv.writer(open('%s.laps' % name, 'w'))
-    lapWriter.writerow(["Time", "Speed", "Lap"])
+    lapWriter.writerow(["Time", "Speed", "Lap","x1","x2","x3","x4","x5","x6","x7","x8", "Speed2","y1","y2","y3","y4","y5","y6","y7","y8"])
     for theLap in range(1,laps):
         raw = port.read(0x24)
-        (hh, mm, ss, sss, speed, lap, track, sign) = \
-            struct.unpack(">4B11xB12x4xHBB", raw)
+        (hh, mm, ss, sss, x1,x2,x3,x4,x5,x6,x7,x8,speed2, speed, y1,y2,y3,y4,y5,y6,y7,y8,lap, track, sign) = \
+            struct.unpack(">4B8BxBxB8x4B4BHBB", raw)
         time=hh*3600 + mm*60 + ss + sss/100
-        lapWriter.writerow([time, speed/10, lap])
+        lapWriter.writerow([time, speed/10, lap,x1,x2,x3,x4,x5,x6,x7,x8,speed2,y1,y2,y3,y4,y5,y6,y7,y8])
 
 # now all track points
 for track in range(tracks):
@@ -80,17 +80,18 @@ for track in range(tracks):
     name = name0.decode('ascii')
     print("Fetching %d points from %s" % (pts, name))
     ptsWriter = csv.writer(open('%s.points' % name, 'w'))
-    ptsWriter.writerow(["Distance", "Speed", "Time", "Pulse","InZone","Latitude","Longitude","Cal","Elevation","Point"])
+    ptsWriter.writerow(["Distance", "Speed", "Time", "Pulse","x1","InZone","Latitude","Longitude","Cal","Elevation","Point"])
     while pts:
         raw = port.read(0x24)
-        (dist, speed0, time, x1, hrm0, inzone, lat0, lon0, cal, z, pt0, trk, sign) = \
-            struct.unpack("=I2sHH2sH6s6sHH4sBB", raw)
+        (dist, speed0, time, x1, hrm0, inzone0, lat0, lon0, cal, z, pt0, trk, sign) = \
+            struct.unpack("=I2sHH2s2s6s6sHH4sBB", raw)
         (hrm) = struct.unpack(">H",hrm0)[0]/5
-        (speed) = struct.unpack(">H",speed0)[0]/200
+        (speed) = struct.unpack(">H",speed0)[0]#/150
         (pt,) = struct.unpack(">I",pt0)
+        (inzone,) = struct.unpack(">H",inzone0)
         lat = pack_coord(lat0, b'S')
         lon = pack_coord(lon0, b'W')
-        ptsWriter.writerow([dist/100, speed, time, hrm, inzone, lat, lon, cal, z/100, pt])
+        ptsWriter.writerow([dist/100, speed, time, hrm, x1, inzone, lat, lon, cal, z/100, pt])
         pts = pts - 1
 
 last = port.read()
