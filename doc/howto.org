@@ -1,0 +1,99 @@
+#+Title: Brief intro on how to fetch data from Schwinn 810 GPS watches
+#+Latex_header: \usepackage{minted}
+
+* Installation
+
+Code was tested on Ubuntu Linux 11.10.
+Make sure you have all necessary python modules installed.
+
+** udev rules
+
+The following rule can be used to automatically download data from watches upon connect
+
+#+begin_src bash
+SUBSYSTEMS=="usb",ATTRS{idVendor}=="10c4", \
+ATTRS{idProduct}=="ea61",SYMLINK+="schwinn810", \
+RUN+="/usr/local/bin/schwinn810"
+#+end_src
+
+Note that these watches (namely USB-UART bridge) uses generic IDs thus some other devices may erroneously trigger this script.
+
+The shell file =/usr/local/bin/schwinn810= may contain something like
+
+#+begin_src bash
+#!/bin/sh
+sudo -u mlt /usr/bin/python3.2 \
+/home/mlt/workspace/schwinn810/src/download.py\
+ --port /dev/schwinn810 --dir /home/mlt/Documents/My\ Runs \
+> /tmp/schwin810.log 2>&1
+#+end_src
+
+* Usage
+
+As you may have guessed, it is a command line tool.
+Very brief help can be seen with
+
+#+begin_src bash
+./download.py --help
+#+end_src
+
+The script will attempt to use =/dev/ttyUSB0= port to communicate with watches
+and if succeeded will dump tracks into current folder.
+
+Data are saved in CSV format. File is named after track on watches.
+The following extensions are used for corresponding data
+
+| Overall track | Laps  | Points  |
+|---------------+-------+---------|
+| .track        | .laps | .points |
+
+In the future there will be a convinient options to hook some script for each track.
+This can be used to invoke /gpsbabel/ to perform conversion to /GPX/ and /TCX/.
+
+* Example plots
+
+You can easily use any tools of your choice since data are stored in CSV format.
+Here is an example with R.
+
+** Linear stuff
+
+#+begin_src R :exports both :results graphics :file out1.png :cache t
+library(chron)
+library(latticeExtra)
+pts=read.csv("~/Documents/My Runs/0325101.points", TRUE,
+ colClasses=c(Time=NA))
+pts$Time <- chron(times=pts$Time)
+laps=read.csv("~/Documents/My Runs/0325101.laps", TRUE)
+breaks <- chron(times=laps$Distance)
+q <- cut(pts$Proximity, unique(breaks))
+xyplot(Proximity/1e3+Speed/150+kcal+Heart ~ Time, pts, type='l',
+       panel=function(x,...) {
+           panel.xblocks(x,q,col = c("lightgray", "#e6e6e6"))
+           panel.xyplot(x,...)
+       },
+       outer=TRUE, layout=c(1,4), scales=list(y=list(relation="free")))
+#+end_src
+
+#+results:
+[[file:out1.png]]
+
+** Google Map
+
+#+header :width 640 :height 640
+#+begin_src R :exports both :results graphics :file out2.png :cache t
+library(RgoogleMaps)
+bb <- qbbox(lat = pts$Latitude, lon = pts$Longitude)
+MyMap <- GetMap.bbox(bb$lonR, bb$latR, destfile = "run_area.png");
+PlotOnStaticMap(MyMap,lat = pts$Latitude, lon = pts$Longitude,
+col=c('purple'), FUN = lines, lwd = 2)
+#+end_src
+
+* GPS & TCX
+
+Use babel
+
+#+begin_src bash
+gpsbabel -i unicsv,utc=-5 -o gpx 0325101.points 0325101.gpx
+gpsbabel -i unicsv,utc=-5 -o kml,lines=1,points=0,track=1,trackdirection=1 -x transform,trk=wpt 0325101.points 0325101.kml
+gpsbabel -w -t -i unicsv,utc=-5 -o gtrnctr,sport=Running 0325101.points 0325101.tcx
+#+end_src
