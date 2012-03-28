@@ -19,7 +19,14 @@ At the end I came to conclusion that there is nothing better than plain *CSV* fi
 All can be enumerated, some deleted, are human-readable, and can be accessed from other software easily.
 
 The problem would be how to get overall statistics?
-Like it would be sweet to use [R])(http://www.r-project.org/) to see trends in progress across multiple runs.
+Like it would be sweet to use [R](http://www.r-project.org/) to see trends in progress across multiple runs.
+
+## Build
+
+### To make Windows redistributable
+
+1. Install Python 3.2, pip, pyserial, cx_Freeze
+2. Execute `cxfreeze --compress --include-modules serial.win32 download.py --target-dir dist`
 
 ## Tasks
 
@@ -27,4 +34,7 @@ At this point one should not expect an exact copy of software for other OSes.
 
 1. <del> Code proxy and transcribe communication making it possible for others to develop software independently.</del>
 2. Improve [data format](https://github.com/mlt/schwinn810/wiki/Data-Format) details.
-3. Write some python (?) code that dumps data from serial port into *CSV*
+3. <del>Write some python (?) code that dumps data from serial port into *CSV*</del>
+4. Make it more [unicsv](http://www.gpsbabel.org/htmldoc-development/fmt_unicsv.html)-friendly so [gpsbabel](http://www.gpsbabel.org) can convert data to [GPX](http://www.gpsbabel.org/htmldoc-development/fmt_gpx.html) and/or [TCX](http://www.gpsbabel.org/htmldoc-development/fmt_gtrnctr.html).
+4. Write some GUI, R code
+5. Export to various web sites
