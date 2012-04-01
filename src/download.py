@@ -110,15 +110,17 @@ for track in range(tracks):
     (x1,min1, hr1, dd1, mm1, yr1, laps, x2, x3, hrm, avspd, pts, x5, name0, ahr, min2, hr2, dd2, mm2, yr2) = \
         struct.unpack(">B5BHHHBBHH7sB5B5x", raw)
     tracks_with_points += (pts>0)
-    start="%02d/%02d/%02d %d:%d" % (mm1,dd1,yr1, hr1,min1)
-    end="%02d/%02d/%02d %d:%d" % (mm2,dd2,yr2, hr2,min2)
+    start="20%02d-%02d-%02d %d:%02d" % (yr1, mm1,dd1, hr1, min1)
+    end="20%02d-%02d-%02d %d:%02d" % (yr2, mm2, dd2, hr2, min2)
     name = name0.decode('ascii')
     print("There are %d laps in %s" % (laps-1, name))
     name = os.path.join(args.dir[0], name)
-    trkWriter = csv.writer(open('%s.track' % name, 'w'))
+    trkFile = open('%s.track' % name, 'w', newline='')
+    trkWriter = csv.writer(trkFile)
     trkWriter.writerow(["Start", "End", "Laps","MaxPulse","AveragePulse","x1","x2","x3","AvSpeed","x5"])
     trkWriter.writerow([start, end, laps, hrm, ahr, x1, x2, x3, avspd, x5])
-    lapWriter = csv.writer(open('%s.laps' % name, 'w'))
+    lapFile = open('%s.laps' % name, 'w', newline='')
+    lapWriter = csv.writer(lapFile)
     lapWriter.writerow(["Time", "Speed", "Lap","Distance","kcal", "MaxSpeed","x1","x2","x3","x4","x5","x6","MaxHeart","Heart","y1","y2","y3","y4","y5","y6","y7","y8"])
     for theLap in range(1,laps):
         raw = port.read(0x24)
@@ -130,6 +132,8 @@ for track in range(tracks):
             struct.unpack(">4BIIxBxB8B4B4BHBB", raw)
         time=hh*3600 + mm*60 + ss + sss/100
         lapWriter.writerow([time, speed/10, lap, dist/1e2, cal/1e4, speed2/10,x1,x2,x3,x4,x5,x6,x7,x8,y1,y2,y3,y4,y5,y6,y7,y8])
+    lapFile.close()
+    trkFile.close()
 
 # now all track points
 # for tracks containing them only!
@@ -142,11 +146,12 @@ for track in range(tracks_with_points):
     (min1, hr1, dd1, mm1, yr1, laps, hrm, pts, name0, ahr, min2, hr2, dd2, mm2, yr2) = \
         struct.unpack(">x5BH4xBxHxx7sB5B5x", raw)
     if pts==0: continue
-    name = name0.decode('ascii')
-    print("Fetching %d points from %s" % (pts, name))
-    name = os.path.join(args.dir[0], name)
-    ptsWriter = csv.writer(open('%s.points' % name, 'w'))
-    ptsWriter.writerow(["Proximity", "Speed", "Time", "Heart","x1","InZone","Latitude","Longitude","kcal","Elevation","No"])
+    track_name = name0.decode('ascii')
+    print("Fetching %d points from %s" % (pts, track_name))
+    name = os.path.join(args.dir[0], track_name)
+    ptsFile = open('%s.points' % name, 'w', newline='')
+    ptsWriter = csv.writer(ptsFile)
+    ptsWriter.writerow(["Distance", "Speed", "Time", "Heart","x1","InZone","Latitude","Longitude","kcal","Elevation","No","Track"])
 #    while pts:
     for thePoint in range(pts):
         raw = port.read(0x24)
@@ -156,7 +161,7 @@ for track in range(tracks_with_points):
 
         (dist, speed0, sec, min, hr, x1, hrm0, izhh, izss, izmm, lat0, lon0, cal, z, pt0, trk, sign) = \
             struct.unpack("=I2s3BB2s3B5s6sHH4sBB", raw)
-        time = "{:02d}:{:02d}:{:02d}".format(hr, min, sec)
+        time = "20{:02d}-{:d}-{:d} {:02d}:{:02d}:{:02d}".format(yr1, mm1, dd1, hr, min, sec)
         (hrm) = struct.unpack(">H",hrm0)[0]/5
         (speed) = struct.unpack(">H",speed0)[0]#/150
         (pt,) = struct.unpack(">I",pt0)
@@ -164,10 +169,11 @@ for track in range(tracks_with_points):
         lat = pack_coord(b"\x00" + lat0, b'S')
         lon = pack_coord(lon0, b'W')
         inzone = "{:d}:{:d}:{:d}".format(izhh, izmm, izss)
-        ptsWriter.writerow([dist/1e2, speed, time, hrm, x1, inzone, lat, lon, cal, z/100, pt])
+        ptsWriter.writerow([dist/1e5, speed/160, time, hrm, x1, inzone, lat, lon, cal, z/100, pt, track_name])
         if pt % 100 == 0:
             print("{:.0f}%".format(100*pt/pts))
 #        pts = pts - 1
+    ptsFile.close()
     if args.hook:
         print("Calling {:s}\n\twith {:s}".format(args.hook[0], name))
         subprocess.Popen([args.hook[0], name])
@@ -175,7 +181,7 @@ for track in range(tracks_with_points):
 # Waypoints
 # FIXME: There must be away to count them ahead of time
 name = os.path.join(args.dir[0], "waypoints.csv")
-wptWriter = csv.writer(open(name, 'w'))
+wptWriter = csv.writer(open(name, 'w', newline=''))
 wptWriter.writerow(["Timestamp", "Name", "Latitude", "Longitude","x1","x2","Elevation","No"])
 while True:
     raw = port.read(0x24)
