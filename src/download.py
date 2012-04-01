@@ -5,6 +5,7 @@ import argparse
 import struct
 import csv
 import serial
+import re
 from sys import exit
 #from yaml import load, dump
 
@@ -29,7 +30,6 @@ parser.add_argument('--debug', dest='debug', action='store_true',
 
 args = parser.parse_args()
 os.umask(0o002)
-reg = stat.S_ISREG(os.stat(args.port[0]).st_mode) # is regular file, i.e. previously dumped
 
 connect    = bytes.fromhex("EEEE000000000000000000000000000000000000000000000000000000000000")
 disconnect = bytes.fromhex("FFFFFFFF00000000000000000000000000000000000000000000000000000000")
@@ -57,6 +57,10 @@ def pack_coord(c0, hemi):
     return c
 
 #serial.Serial("COM5", 115200, timeout=20, writeTimeout=20)
+reg = False
+if os.name != 'nt' or not re.match("com\\d", args.port[0], re.IGNORECASE):
+    reg = stat.S_ISREG(os.stat(args.port[0]).st_mode) # is regular file, i.e. previously dumped
+
 if not reg:
     try:
         port = serial.Serial(args.port[0], 115200, timeout=1, writeTimeout=1)
@@ -165,7 +169,7 @@ for track in range(tracks_with_points):
             print("{:.0f}%".format(100*pt/pts))
 #        pts = pts - 1
     if args.hook:
-        print("Calling {:s}".format(args.hook[0]))
+        print("Calling {:s}\n\twith {:s}".format(args.hook[0], name))
         subprocess.Popen([args.hook[0], name])
 
 # Waypoints
@@ -180,7 +184,7 @@ while True:
     if raw[0:2] == b"\xee\xee":
         break
     (yy, mm, dd, hh, mn, ss, name0, lat0, lon0, x1,x2, z, num, sign) = \
-        struct.unpack(">6B6s3x5s6s2BH4xBB", raw)
+        struct.unpack("=6B6s3x5s6s2BH4xBB", raw)
     time = "{:2d}/{:2d}/{:2d} {:2d}:{:02d}:{:02d}".format(mm,dd,yy,hh,mn,ss)
     name = name0.decode('ascii')
     lat = pack_coord(b"\x00" + lat0, b'S')
