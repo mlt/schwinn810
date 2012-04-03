@@ -99,39 +99,45 @@ if args.debug:
 
 tracks_with_points = 0
 
-(tracks,) = struct.unpack("=28xH6x", raw)
-print("We've got %d tracks to download" % tracks)
+(tracks, waypoints) = struct.unpack("=28xHH4x", raw)
+print("We've got %d tracks and %d waypoints to download" % (tracks, waypoints))
 for track in range(tracks):
     raw = port.read(0x24)
 
     if args.debug:
         dump.write(raw)
 
-    (x1,min1, hr1, dd1, mm1, yr1, laps, x2, x3, hrm, avspd, pts, x5, name0, ahr, min2, hr2, dd2, mm2, yr2) = \
-        struct.unpack(">B5BHHHBBHH7sB5B5x", raw)
+    (x1,min1, hr1, dd1, mm1, yr1, laps, \
+         speed_max, speed, hrm, x4, pts, \
+         x5, name0, ahr, min2, hr2, dd2, mm2, yr2) = \
+         struct.unpack(">B5BH HHBBH H7sB5B5x", raw)
     tracks_with_points += (pts>0)
     start="20%02d-%02d-%02d %d:%02d" % (yr1, mm1,dd1, hr1, min1)
     end="20%02d-%02d-%02d %d:%02d" % (yr2, mm2, dd2, hr2, min2)
-    name = name0.decode('ascii')
-    print("There are %d laps in %s" % (laps-1, name))
-    name = os.path.join(args.dir[0], name)
+    track_name = name0.decode('ascii')
+    print("There are %d laps in %s" % (laps-1, track_name))
+    name = os.path.join(args.dir[0], track_name)
     trkFile = open('%s.track' % name, 'w', newline='')
     trkWriter = csv.writer(trkFile)
-    trkWriter.writerow(["Start", "End", "Laps","MaxPulse","AveragePulse","x1","x2","x3","AvSpeed","x5"])
-    trkWriter.writerow([start, end, laps, hrm, ahr, x1, x2, x3, avspd, x5])
+    trkWriter.writerow(["Start", "End", "Laps","MaxHeart","Heart","x1","MaxSpeed","Speed","x4","x5","Points","Track"])
+    trkWriter.writerow([start, end, laps-1, hrm, ahr, x1, speed_max/10, speed/10, x4, x5, pts, track_name])
     lapFile = open('%s.laps' % name, 'w', newline='')
     lapWriter = csv.writer(lapFile)
-    lapWriter.writerow(["Time", "Speed", "Lap","Distance","kcal", "MaxSpeed","x1","x2","x3","x4","x5","x6","MaxHeart","Heart","y1","y2","y3","y4","y5","y6","y7","y8"])
+    lapWriter.writerow(["Time", "Speed", "Lap","Distance","kcal", "MaxSpeed","x1","x2","x3","x4","x5","x6","MaxHeart","Heart","y1","y2","y3","y4","y5","y6","y7","y8", "Track"])
     for theLap in range(1,laps):
         raw = port.read(0x24)
 
         if args.debug:
             dump.write(raw)
 
-        (hh, mm, ss, sss, dist, cal, speed2, speed,x1,x2,x3,x4,x5,x6,x7,x8, y1,y2,y3,y4,y5,y6,y7,y8,lap, track, sign) = \
-            struct.unpack(">4BIIxBxB8B4B4BHBB", raw)
+        (hh, mm, ss, sss, dist, \
+             cal, speed2, speed, \
+             x1,x2,x3,x4,x5,x6,x7,x8, \
+             y1,y2,y3,y4,y5,y6,y7,y8, \
+             lap, track, sign) = \
+            struct.unpack(">4BI IxBxB 8B 4B4B HBB", raw)
         time=hh*3600 + mm*60 + ss + sss/100
-        lapWriter.writerow([time, speed/10, lap, dist/1e2, cal/1e4, speed2/10,x1,x2,x3,x4,x5,x6,x7,x8,y1,y2,y3,y4,y5,y6,y7,y8])
+        lapWriter.writerow([time, speed/10, lap, dist/1e5, cal/1e4, speed2/10,x1,x2,x3,x4,x5,x6,x7,x8,y1,y2,y3,y4,y5,y6,y7,y8, track_name])
     lapFile.close()
     trkFile.close()
 
@@ -145,7 +151,6 @@ for track in range(tracks_with_points):
 
     (min1, hr1, dd1, mm1, yr1, laps, hrm, pts, name0, ahr, min2, hr2, dd2, mm2, yr2) = \
         struct.unpack(">x5BH4xBxHxx7sB5B5x", raw)
-    if pts==0: continue
     track_name = name0.decode('ascii')
     print("Fetching %d points from %s" % (pts, track_name))
     name = os.path.join(args.dir[0], track_name)
