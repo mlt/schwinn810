@@ -29,7 +29,6 @@ parser.add_argument('--debug', dest='debug', action='store_true',
 #                    help='Creates subfolder with device id inside dir but before year')
 
 args = parser.parse_args()
-os.umask(0o002)
 
 connect    = bytes.fromhex("EEEE000000000000000000000000000000000000000000000000000000000000")
 disconnect = bytes.fromhex("FFFFFFFF00000000000000000000000000000000000000000000000000000000")
@@ -82,7 +81,7 @@ if args.debug:
     dump = open(os.path.join(tempfile.gettempdir(), "schwinn810.bin"), mode="wb")
     dump.write(raw)
 
-(ee, e1, e2, e3, bcd1, bcd2, bcd3, serial, v1, v2, check1, check2) = struct.unpack("sBBBBBB6s5s8s2x2I", raw)
+(ee, e1, e2, e3, bcd1, bcd2, bcd3, serial, v1, v2, check1, check2) = struct.unpack("sBBBBBB6s6s7s2x2I", raw)
 if check1 != check2:
     print("0x{:X} != 0x{:X}".format(check1, check2))
 #    port.close()
@@ -202,6 +201,12 @@ while True:
     lat = pack_coord(b"\x00" + lat0, b'S')
     lon = pack_coord(lon0, b'W')
     wptWriter.writerow([time, name, lat, lon, x1, x2, z/100, num])
+
+if not reg and args.delete:
+    if args.debug:
+        port.write(delete)
+    else:
+        print("--debug is required for deletion for now", file=sys.stderr)
 
 if args.debug:
     dump.close()
