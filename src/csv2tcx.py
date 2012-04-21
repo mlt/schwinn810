@@ -26,66 +26,76 @@ with open(base+".track") as t:
     print("""<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd">
     
-        <Activities>
-            <Activity Sport="Running">
-                <Id>{:s}</Id>""".format(track_start.isoformat()))
+ <Activities>
+  <Activity Sport="Running">
+   <Id>{:s}</Id>""".format(track_start.isoformat()))
     lap_start = track_start
-    prev = 0.
+    time_prev = 0.
+    kcal_prev = 0
+    dist_prev = 0.
 
     with open(base+".laps") as l, open(base+".points") as p:
         laps = DictReader(l)
         points = DictReader(p)
         thePoint = next(points)
         for theLap in laps:
-            print("""                    <Lap StartTime="{:s}">
-                        <TotalTimeSeconds>{:f}</TotalTimeSeconds>
-                        <DistanceMeters>{:f}</DistanceMeters>
-                        <MaximumSpeed>{:s}</MaximumSpeed>
-                        <Calories>{:d}</Calories>
-                        <Intensity>Active</Intensity>
-                        <TriggerMethod>Location</TriggerMethod>
-                        <Track>""".format(lap_start.isoformat(), \
-                                              float(theLap["Time"])-prev, \
-                                              float(theLap["Distance"])*1.e3, \
-                                              theLap["MaxSpeed"], \
-                                              round(float(theLap["kcal"]))))
-            lap_start = track_start + timedelta(seconds=float(theLap["Time"]))
-            prev = float(theLap["Time"])
+            time = float(theLap["Time"])
+            kcal = round(float(theLap["kcal"]))
+            dist = float(theLap["Distance"])*1.e3
+            print("""   <Lap StartTime="{:s}">
+    <TotalTimeSeconds>{:f}</TotalTimeSeconds>
+    <DistanceMeters>{:f}</DistanceMeters>
+    <MaximumSpeed>{:s}</MaximumSpeed>
+    <Calories>{:d}</Calories>""".format(lap_start.isoformat(), \
+                                            time - time_prev, \
+                                            dist - dist_prev, \
+                                            theLap["MaxSpeed"], \
+                                            kcal - kcal_prev))
+            lap_start = track_start + timedelta(seconds=time)
+            time_prev = time
+            kcal_prev = kcal
+            dist_prev = dist
+            heart = int(theLap["MaxHeart"])
+            if heart>0:
+                print("""    <MaximumHeartRateBpm><Value>{:d}</Value></MaximumHeartRateBpm>""".format(heart))
+            print("""    <Intensity>Active</Intensity>
+    <TriggerMethod>Location</TriggerMethod>
+    <Track>""")
 
             while True:
                 time = tz.localize(datetime.strptime(thePoint["Time"], "%Y-%m-%d %H:%M:%S"))
                 if time > lap_start:
                     break
-                print("""                            <Trackpoint>
-                                    <Time>{:s}</Time>
-                                    <Position>
-                                        <LatitudeDegrees>{:s}</LatitudeDegrees>
-                                        <LongitudeDegrees>{:s}</LongitudeDegrees>
-                                    </Position>
-                                    <AltitudeMeters>{:s}</AltitudeMeters>
-                                    <DistanceMeters>{:f}</DistanceMeters>""".format(time.isoformat(), \
-                                                        thePoint["Latitude"], \
-                                                        thePoint["Longitude"], \
-                                                        thePoint["Elevation"], \
-                                                        float(thePoint["Distance"])*1.e3))
+                print("""     <Trackpoint>
+      <Time>{:s}</Time>
+      <Position>
+       <LatitudeDegrees>{:s}</LatitudeDegrees>
+       <LongitudeDegrees>{:s}</LongitudeDegrees>
+      </Position>
+      <AltitudeMeters>{:s}</AltitudeMeters>
+      <DistanceMeters>{:f}</DistanceMeters>""".format(time.isoformat(), \
+                                                          thePoint["Latitude"], \
+                                                          thePoint["Longitude"], \
+                                                          thePoint["Elevation"], \
+                                                          float(thePoint["Distance"])*1.e3))
                 heart = round(float(thePoint["Heart"]))
                 if heart > 0:
-                    print("""                                    <HeartRateBpm><Value>{:d}</Value></HeartRateBpm>
-                                    <SensorState>Present</SensorState>""".format(heart))
+                    print("""      <HeartRateBpm><Value>{:d}</Value></HeartRateBpm>
+      <SensorState>Present</SensorState>""".format(heart))
                 else:
-                    print("                                    <SensorState>Absent</SensorState>")
+                    print("      <SensorState>Absent</SensorState>")
 
-                print("                            </Trackpoint>")
+                print("     </Trackpoint>")
 
                 try:
                     thePoint = next(points)
                 except StopIteration:
                     break
 
-            print("""                        </Track>
-                    </Lap>""")
+            print("""    </Track>
+   </Lap>""")
 
-    print("""            </Activity>
-        </Activities>
+    print("""  </Activity>
+ </Activities>
 
 </TrainingCenterDatabase>""")
