@@ -21,8 +21,8 @@ parser.add_argument('--dir', nargs=1, dest='dir',
                    help='Where to store data')
 parser.add_argument('--debug', dest='debug', action='store_true',
                     help='Dump all replies in a binary form into a single file schwinn810.bin in TEMP dir')
-# parser.add_argument('--delete', dest='delete', action='store_true',
-#                    help='Delete all data from watches after download?')
+parser.add_argument('--delete', dest='delete', action='store_true',
+                   help='Delete all data from watches after download?')
 # parser.add_argument('--add-year', dest='add_year', action='store_true',
 #                    help='Creates subfolder in dir named after the current year')
 # parser.add_argument('--add-id', dest='add_id', action='store_true',

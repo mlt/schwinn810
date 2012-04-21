@@ -1,4 +1,4 @@
-#!/usr/bin/python3.2
+#!/usr/bin/python
 # This script converts lap and point data into TCX history
 
 import argparse, os
@@ -40,7 +40,7 @@ with open(base+".track") as t:
         thePoint = next(points)
         for theLap in laps:
             time = float(theLap["Time"])
-            kcal = round(float(theLap["kcal"]))
+            kcal = int(float(theLap["kcal"]))
             dist = float(theLap["Distance"])*1.e3
             print("""   <Lap StartTime="{:s}">
     <TotalTimeSeconds>{:f}</TotalTimeSeconds>
@@ -78,7 +78,7 @@ with open(base+".track") as t:
                                                           thePoint["Longitude"], \
                                                           thePoint["Elevation"], \
                                                           float(thePoint["Distance"])*1.e3))
-                heart = round(float(thePoint["Heart"]))
+                heart = int(float(thePoint["Heart"]))
                 if heart > 0:
                     print("""      <HeartRateBpm><Value>{:d}</Value></HeartRateBpm>
       <SensorState>Present</SensorState>""".format(heart))

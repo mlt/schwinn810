@@ -3,8 +3,10 @@
 	/usr/bin/python3.2 \
 	/home/mlt/workspace/schwinn810/src/download.py \
 	--debug \
-	--hook /home/mlt/workspace/schwinn810/src/babelize.sh \
-	--port schwinn810.bin \
-	--dir /home/mlt/Documents/My\ Runs
+	--port /dev/schwinn810 \
+	--dir /home/mlt/Documents/My\ Runs \
+	--hook /home/mlt/workspace/schwinn810/src/babelize.sh 
 #	--port /dev/schwinn810 \
+#	--hook /home/mlt/workspace/schwinn810/src/babelize.sh \
+#	--port schwinn810.bin \
 
