@@ -9,11 +9,11 @@ import re
 from sys import exit
 #from yaml import load, dump
 
-parser = argparse.ArgumentParser(description='Download tracks from Schwinn 810 GPS sport watches with HRM.')
+parser = argparse.ArgumentParser(description='Download tracks from Schwinn 810 GPS sport watch with HRM.')
 parser.add_argument('--port', nargs=1, dest='port',
                    default=[ {'posix': '/dev/ttyUSB0', 'nt': 'COM5'}[os.name] ],
 #                   default=['COM5'] if os.name=='nt' else ['/dev/ttyUSB0'],
-                   help='Virtual COM port created by cp201x for Schwinn 810 watches')
+                   help='Virtual COM port created by cp201x for Schwinn 810 GPS watch')
 parser.add_argument('--hook', nargs=1, dest='hook',
                    help='Callback upon track extraction')
 parser.add_argument('--dir', nargs=1, dest='dir',
@@ -122,7 +122,9 @@ for track in range(tracks):
     trkWriter.writerow([start, end, laps-1, hrm, ahr, x1, speed_max/10, speed/10, x4, x5, pts, track_name])
     lapFile = open('%s.laps' % name, 'w', newline='')
     lapWriter = csv.writer(lapFile)
-    lapWriter.writerow(["Time", "Speed", "Lap","Distance","kcal", "MaxSpeed","x1","x2","x3","x4","x5","x6","MaxHeart","MinHeart","y1","y2","y3","y4","Elevation","y7","y8", "Track"])
+    lapWriter.writerow(["Time", "Speed", "Lap", "Distance", "kcal", "MaxSpeed", \
+                            "x1", "Beats", "sec", "MaxHeart", "MinHeart", \
+                            "InZone", "y4", "Elevation", "y7", "y8", "Track"])
     for theLap in range(1,laps):
         raw = port.read(0x24)
 
@@ -131,13 +133,16 @@ for track in range(tracks):
 
         (hh, mm, ss, sss, dist, \
              cal, speed_max, speed, \
-             x1,x2,x3,x4,x5,x6,heart_max,heart_min, \
-             y1,y2,y3,y4,z_low,z_high,y7,y8, \
+             x1, beats_high, beats_mid, beats_low, sec,heart_max,heart_min, \
+             iz_h, iz_m, iz_s, y4, z_low, z_high, y7, y8, \
              lap, track, sign) = \
-            struct.unpack(">4BI IxBxB 8B 4B2B2B HBB", raw)
+            struct.unpack(">4BI IxBxB 4BH2B 3BB2B2B HBB", raw)
         z = z_low + 256*z_high
         time=hh*3600 + mm*60 + ss + sss/100
-        lapWriter.writerow([time, speed/10, lap, dist/1e5, cal/1e4, speed_max/10,x1,x2,x3,x4,x5,x6,heart_max,heart_min,y1,y2,y3,y4,z/1e2,y7,y8, track_name])
+        iz = iz_h*3600 + iz_m*60 + iz_s
+        lapWriter.writerow([time, speed/10, lap, dist/1e5, cal/1e4, speed_max/10,x1, \
+                                beats_high*65536 + beats_mid*256 + beats_low, \
+                                sec, heart_max, heart_min, iz, y4, z/1e2, y7, y8, track_name])
     lapFile.close()
     trkFile.close()
 

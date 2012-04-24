@@ -33,6 +33,7 @@ with open(base+".track") as t:
     time_prev = 0.
     kcal_prev = 0
     dist_prev = 0.
+    beats_prev = 0
 
     with open(base+".laps") as l, open(base+".points") as p:
         laps = DictReader(l)
@@ -42,22 +43,26 @@ with open(base+".track") as t:
             time = float(theLap["Time"])
             kcal = int(float(theLap["kcal"]))
             dist = float(theLap["Distance"])*1.e3
+            beats = int(theLap["Beats"])
             print("""   <Lap StartTime="{:s}">
     <TotalTimeSeconds>{:f}</TotalTimeSeconds>
     <DistanceMeters>{:f}</DistanceMeters>
     <MaximumSpeed>{:s}</MaximumSpeed>
-    <Calories>{:d}</Calories>""".format(lap_start.isoformat(), \
-                                            time - time_prev, \
-                                            dist - dist_prev, \
-                                            theLap["MaxSpeed"], \
-                                            kcal - kcal_prev))
+    <Calories>{:d}</Calories>
+    <AverageHeartRateBpm><Value>{:d}</Value></AverageHeartRateBpm>""".format(lap_start.isoformat(), \
+                                                                                 time - time_prev, \
+                                                                                 dist - dist_prev, \
+                                                                                 theLap["MaxSpeed"], \
+                                                                                 kcal - kcal_prev, \
+                                                                                 int((beats - beats_prev)/(time - time_prev))))
             lap_start = track_start + timedelta(seconds=time)
             time_prev = time
             kcal_prev = kcal
             dist_prev = dist
-            heart = int(theLap["MaxHeart"])
-            if heart>0:
-                print("""    <MaximumHeartRateBpm><Value>{:d}</Value></MaximumHeartRateBpm>""".format(heart))
+            beats_prev = beats
+            heart_max = int(theLap["MaxHeart"])
+            if heart_max>0:
+                print("""    <MaximumHeartRateBpm><Value>{:d}</Value></MaximumHeartRateBpm>""".format(heart_max))
             print("""    <Intensity>Active</Intensity>
     <TriggerMethod>Location</TriggerMethod>
     <Track>""")
@@ -95,7 +100,19 @@ with open(base+".track") as t:
             print("""    </Track>
    </Lap>""")
 
-    print("""  </Activity>
+    print("""
+   <Creator xsi:type="Device_t">
+    <Name>Schwinn 810 GPS</Name>
+    <UnitId>2882</UnitId>
+    <ProductID>11153</ProductID>
+    <Version>
+     <VersionMajor>1</VersionMajor>
+     <VersionMinor>20</VersionMinor>
+     <BuildMajor>0</BuildMajor>
+     <BuildMinor>0</BuildMinor>
+    </Version>
+   </Creator>
+  </Activity>
  </Activities>
 
 </TrainingCenterDatabase>""")
