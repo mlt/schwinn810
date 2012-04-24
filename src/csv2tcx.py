@@ -49,7 +49,7 @@ with open(base+".track") as t:
     <DistanceMeters>{:f}</DistanceMeters>
     <MaximumSpeed>{:s}</MaximumSpeed>
     <Calories>{:d}</Calories>
-    <AverageHeartRateBpm xsi:type="HeartRateInBeatsPerMinute_t"><Value>{:d}</Value></AverageHeartRateBpm>""".format(lap_start.isoformat(), \
+    <AverageHeartRateBpm><Value>{:d}</Value></AverageHeartRateBpm>""".format(lap_start.astimezone(utc).isoformat(), \
                                                                                  time - time_prev, \
                                                                                  dist - dist_prev, \
                                                                                  theLap["MaxSpeed"], \
@@ -62,7 +62,7 @@ with open(base+".track") as t:
             beats_prev = beats
             heart_max = int(theLap["MaxHeart"])
             if heart_max>0:
-                print("""    <MaximumHeartRateBpm xsi:type="HeartRateInBeatsPerMinute_t"><Value>{:d}</Value></MaximumHeartRateBpm>""".format(heart_max))
+                print("""    <MaximumHeartRateBpm><Value>{:d}</Value></MaximumHeartRateBpm>""".format(heart_max))
             print("""    <Intensity>Active</Intensity>
     <TriggerMethod>Location</TriggerMethod>
     <Track>""")
@@ -78,14 +78,14 @@ with open(base+".track") as t:
        <LongitudeDegrees>{:s}</LongitudeDegrees>
       </Position>
       <AltitudeMeters>{:s}</AltitudeMeters>
-      <DistanceMeters>{:f}</DistanceMeters>""".format(time.isoformat(), \
+      <DistanceMeters>{:f}</DistanceMeters>""".format(time.astimezone(utc).isoformat(), \
                                                           thePoint["Latitude"], \
                                                           thePoint["Longitude"], \
                                                           thePoint["Elevation"], \
                                                           float(thePoint["Distance"])*1.e3))
                 heart = int(float(thePoint["Heart"]))
                 if heart > 0:
-                    print("""      <HeartRateBpm xsi:type="HeartRateInBeatsPerMinute_t"><Value>{:d}</Value></HeartRateBpm>
+                    print("""      <HeartRateBpm><Value>{:d}</Value></HeartRateBpm>
       <SensorState>Present</SensorState>""".format(heart))
                 else:
                     print("      <SensorState>Absent</SensorState>")
