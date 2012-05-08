@@ -1,4 +1,5 @@
 #!/usr/bin/python3.2
+from __future__ import print_function
 import sys,os
 import subprocess,stat,tempfile
 import argparse
@@ -30,10 +31,14 @@ parser.add_argument('--delete', dest='delete', action='store_true',
 
 args = parser.parse_args()
 
-connect    = bytes.fromhex("EEEE000000000000000000000000000000000000000000000000000000000000")
-disconnect = bytes.fromhex("FFFFFFFF00000000000000000000000000000000000000000000000000000000")
-download   = bytes.fromhex("0808AAAA00000000000000000000000000000000000000000000000000000000")
-delete     = bytes.fromhex("000000000000000000000000000000000000000000000000000000000000FFFD")
+open_extra = dict();
+if sys.version_info >= (3,0):
+    open_extra["newline"] = ''
+
+connect    = bytearray.fromhex("EEEE000000000000000000000000000000000000000000000000000000000000")
+disconnect = bytearray.fromhex("FFFFFFFF00000000000000000000000000000000000000000000000000000000")
+download   = bytearray.fromhex("0808AAAA00000000000000000000000000000000000000000000000000000000")
+delete     = bytearray.fromhex("000000000000000000000000000000000000000000000000000000000000FFFD")
 
 def unpackBCD(x0):
     x00 = x0
@@ -51,7 +56,7 @@ def unpackBCD(x0):
 def pack_coord(c0, hemi):
     c1 = struct.unpack(">HBHs", c0)
     c2=[unpackBCD(x) for x in c1[0:3]]
-    c = c2[0] + (c2[1]+c2[2]/10000)/60
+    c = c2[0] + (c2[1]+c2[2]/10000.)/60.
     if (c1[3] == hemi) : c = -c
     return c
 
@@ -116,11 +121,11 @@ for track in range(tracks):
     track_name = name0.decode('ascii')
     print("There are %d laps in %s" % (laps-1, track_name))
     name = os.path.join(args.dir[0], track_name)
-    trkFile = open('%s.track' % name, 'w', newline='')
+    trkFile = open('%s.track' % name, 'w', **open_extra)
     trkWriter = csv.writer(trkFile)
     trkWriter.writerow(["Start", "End", "Laps","MaxHeart","Heart","x1","MaxSpeed","Speed","x4","x5","Points","Track"])
-    trkWriter.writerow([start, end, laps-1, hrm, ahr, x1, speed_max/10, speed/10, x4, x5, pts, track_name])
-    lapFile = open('%s.laps' % name, 'w', newline='')
+    trkWriter.writerow([start, end, laps-1, hrm, ahr, x1, speed_max/10., speed/10., x4, x5, pts, track_name])
+    lapFile = open('%s.laps' % name, 'w', **open_extra)
     lapWriter = csv.writer(lapFile)
     lapWriter.writerow(["Time", "Speed", "Lap", "Distance", "kcal", "MaxSpeed", \
                             "x1", "Beats", "sec", "MaxHeart", "MinHeart", \
@@ -138,9 +143,9 @@ for track in range(tracks):
              lap, track, sign) = \
             struct.unpack(">4BI IxBxB 4BH2B 3BB2B2B HBB", raw)
         z = z_low + 256*z_high
-        time=hh*3600 + mm*60 + ss + sss/100
+        time=hh*3600 + mm*60 + ss + sss/100.
         iz = iz_h*3600 + iz_m*60 + iz_s
-        lapWriter.writerow([time, speed/10, lap, dist/1e5, cal/1e4, speed_max/10,x1, \
+        lapWriter.writerow([time, speed/10., lap, dist/1e5, cal/1e4, speed_max/10.,x1, \
                                 beats_high*65536 + beats_mid*256 + beats_low, \
                                 sec, heart_max, heart_min, iz, y4, z/1e2, y7, y8, track_name])
     lapFile.close()
@@ -159,7 +164,7 @@ for track in range(tracks_with_points):
     track_name = name0.decode('ascii')
     print("Fetching %d points from %s" % (pts, track_name))
     name = os.path.join(args.dir[0], track_name)
-    ptsFile = open('%s.points' % name, 'w', newline='')
+    ptsFile = open('%s.points' % name, 'w', **open_extra)
     ptsWriter = csv.writer(ptsFile)
     ptsWriter.writerow(["Distance", "Speed", "Time", "Heart","x1","InZone","Latitude","Longitude","kcal","Elevation","No","Track"])
 #    while pts:
@@ -172,14 +177,14 @@ for track in range(tracks_with_points):
         (dist, speed0, sec, min, hr, x1, hrm0, izhh, izss, izmm, lat0, lon0, cal, z, pt0, trk, sign) = \
             struct.unpack("=I2s3BB2s3B5s6sHH4sBB", raw)
         time = "20{:02d}-{:d}-{:d} {:02d}:{:02d}:{:02d}".format(yr1, mm1, dd1, hr, min, sec)
-        (hrm) = struct.unpack(">H",hrm0)[0]/5
+        (hrm) = struct.unpack(">H",hrm0)[0]/5.
         (speed) = struct.unpack(">H",speed0)[0]#/150
         (pt,) = struct.unpack(">I",pt0)
 #        (inzone,) = struct.unpack(">H",inzone0)
         lat = pack_coord(b"\x00" + lat0, b'S')
         lon = pack_coord(lon0, b'W')
         inzone = "{:d}:{:d}:{:d}".format(izhh, izmm, izss) # FIXME replace with plain seconds
-        ptsWriter.writerow([dist/1e5, speed/160, time, hrm, x1, inzone, lat, lon, cal, z/100, pt, track_name])
+        ptsWriter.writerow([dist/1e5, speed/160., time, hrm, x1, inzone, lat, lon, cal, z/100., pt, track_name])
         if pt % 100 == 0:
             print("{:.0f}%".format(100*pt/pts))
 #        pts = pts - 1
@@ -191,7 +196,7 @@ for track in range(tracks_with_points):
 # Waypoints
 # TODO make use of waypoints count
 name = os.path.join(args.dir[0], "waypoints.csv")
-wptWriter = csv.writer(open(name, 'w', newline=''))
+wptWriter = csv.writer(open(name, 'w', **open_extra))
 wptWriter.writerow(["Timestamp", "Name", "Latitude", "Longitude","x1","x2","Elevation","No"])
 while True:
     raw = port.read(0x24)
@@ -205,7 +210,7 @@ while True:
     name = name0.decode('ascii')
     lat = pack_coord(b"\x00" + lat0, b'S')
     lon = pack_coord(lon0, b'W')
-    wptWriter.writerow([time, name, lat, lon, x1, x2, z/100, num])
+    wptWriter.writerow([time, name, lat, lon, x1, x2, z/100., num])
 
 if not reg and args.delete:
     if args.debug:
