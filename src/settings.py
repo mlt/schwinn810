@@ -1,4 +1,5 @@
 #!/usr/bin/python3.2
+from __future__ import print_function
 import sys,os
 import subprocess,stat,tempfile
 import argparse
@@ -32,9 +33,9 @@ parser.add_argument('--save', dest='save', action='store_true',
 
 args = parser.parse_args()
 
-connect    = bytes.fromhex("EEEE000000000000000000000000000000000000000000000000000000000000")
-disconnect = bytes.fromhex("FFFFFFFF00000000000000000000000000000000000000000000000000000000")
-settings_read = bytes.fromhex("000000000000000000000000000000000000000000000000000000000000EEEE")
+connect    = bytearray.fromhex("EEEE000000000000000000000000000000000000000000000000000000000000")
+disconnect = bytearray.fromhex("FFFFFFFF00000000000000000000000000000000000000000000000000000000")
+settings_read = bytearray.fromhex("000000000000000000000000000000000000000000000000000000000000EEEE")
 
 def unpackBCD(x0):
     x00 = x0
@@ -49,13 +50,14 @@ def unpackBCD(x0):
         x0 = x0 >> 4
     return x
 
+reg = False
+
 if os.name != 'nt' or not re.match("com\\d", args.port[0], re.IGNORECASE):
     reg = stat.S_ISREG(os.stat(args.port[0]).st_mode) # is regular file, i.e. previously dumped
 
 if not reg:
     try:
         port = serial.Serial(args.port[0], 115200, timeout=1, writeTimeout=1)
-        port.open()
     except serial.SerialException as e:
         print("Port can't be opened :(", file=sys.stderr)
         exit(-1)

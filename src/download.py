@@ -68,7 +68,6 @@ if os.name != 'nt' or not re.match("com\\d", args.port[0], re.IGNORECASE):
 if not reg:
     try:
         port = serial.Serial(args.port[0], 115200, timeout=1, writeTimeout=1)
-        port.open()
     except serial.SerialException as e:
         print("Port can't be opened :(", file=sys.stderr)
         exit(-1)
@@ -121,11 +120,11 @@ for track in range(tracks):
     track_name = name0.decode('ascii')
     print("There are %d laps in %s" % (laps-1, track_name))
     name = os.path.join(args.dir[0], track_name)
-    trkFile = open('%s.track' % name, 'w', **open_extra)
+    trkFile = open('%s.track' % name, "wb", **open_extra)
     trkWriter = csv.writer(trkFile)
     trkWriter.writerow(["Start", "End", "Laps","MaxHeart","Heart","x1","MaxSpeed","Speed","x4","x5","Points","Track"])
     trkWriter.writerow([start, end, laps-1, hrm, ahr, x1, speed_max/10., speed/10., x4, x5, pts, track_name])
-    lapFile = open('%s.laps' % name, 'w', **open_extra)
+    lapFile = open('%s.laps' % name, "wb", **open_extra)
     lapWriter = csv.writer(lapFile)
     lapWriter.writerow(["Time", "Speed", "Lap", "Distance", "kcal", "MaxSpeed", \
                             "x1", "Beats", "sec", "MaxHeart", "MinHeart", \
@@ -164,7 +163,7 @@ for track in range(tracks_with_points):
     track_name = name0.decode('ascii')
     print("Fetching %d points from %s" % (pts, track_name))
     name = os.path.join(args.dir[0], track_name)
-    ptsFile = open('%s.points' % name, 'w', **open_extra)
+    ptsFile = open('%s.points' % name, "wb", **open_extra)
     ptsWriter = csv.writer(ptsFile)
     ptsWriter.writerow(["Distance", "Speed", "Time", "Heart","x1","InZone","Latitude","Longitude","kcal","Elevation","No","Track"])
 #    while pts:
@@ -196,7 +195,7 @@ for track in range(tracks_with_points):
 # Waypoints
 # TODO make use of waypoints count
 name = os.path.join(args.dir[0], "waypoints.csv")
-wptWriter = csv.writer(open(name, 'w', **open_extra))
+wptWriter = csv.writer(open(name, "wb", **open_extra))
 wptWriter.writerow(["Timestamp", "Name", "Latitude", "Longitude","x1","x2","Elevation","No"])
 while True:
     raw = port.read(0x24)
