@@ -49,7 +49,7 @@ with open(base+".track") as t:
     <DistanceMeters>{:f}</DistanceMeters>
     <MaximumSpeed>{:s}</MaximumSpeed>
     <Calories>{:d}</Calories>
-    <AverageHeartRateBpm><Value>{:d}</Value></AverageHeartRateBpm>""".format(lap_start.astimezone(utc).isoformat(), \
+    <AverageHeartRateBpm><Value>{:d}</Value></AverageHeartRateBpm>""".format(lap_start.astimezone(utc).strftime("%Y-%m-%dT%H:%M:%SZ"), \
                                                                                  time - time_prev, \
                                                                                  dist - dist_prev, \
                                                                                  theLap["MaxSpeed"], \
@@ -78,7 +78,7 @@ with open(base+".track") as t:
        <LongitudeDegrees>{:s}</LongitudeDegrees>
       </Position>
       <AltitudeMeters>{:s}</AltitudeMeters>
-      <DistanceMeters>{:f}</DistanceMeters>""".format(time.astimezone(utc).isoformat(), \
+      <DistanceMeters>{:f}</DistanceMeters>""".format(time.astimezone(utc).strftime("%Y-%m-%dT%H:%M:%SZ"), \
                                                           thePoint["Latitude"], \
                                                           thePoint["Longitude"], \
                                                           thePoint["Elevation"], \
