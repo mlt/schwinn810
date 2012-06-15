@@ -110,25 +110,25 @@ for track in range(tracks):
     if args.debug:
         dump.write(raw)
 
-    (x1,min1, hr1, dd1, mm1, yr1, laps, \
+    (sec1,min1, hr1, dd1, mm1, yr1, laps, \
          speed_max, speed, hrm, x4, pts, \
          x5, name0, ahr, min2, hr2, dd2, mm2, yr2) = \
-         struct.unpack(">B5BH HHBBH H7sB5B5x", raw)
+         struct.unpack(">6BH HHBBH H7sB5B5x", raw)
     tracks_with_points += (pts>0)
-    start="20%02d-%02d-%02d %d:%02d" % (yr1, mm1,dd1, hr1, min1)
+    start="20%02d-%02d-%02d %d:%02d:%02d" % (yr1, mm1,dd1, hr1, min1, sec1)
     end="20%02d-%02d-%02d %d:%02d" % (yr2, mm2, dd2, hr2, min2)
     track_name = name0.decode('ascii')
     print("There are %d laps in %s" % (laps-1, track_name))
     name = os.path.join(args.dir[0], track_name)
     trkFile = open('%s.track' % name, "wb", **open_extra)
     trkWriter = csv.writer(trkFile)
-    trkWriter.writerow(["Start", "End", "Laps","MaxHeart","Heart","x1","MaxSpeed","Speed","x4","x5","Points","Track"])
-    trkWriter.writerow([start, end, laps-1, hrm, ahr, x1, speed_max/10., speed/10., x4, x5, pts, track_name])
+    trkWriter.writerow(["Start", "End", "Laps","MaxHeart","Heart","MaxSpeed","Speed","x4","x5","Points","Track"])
+    trkWriter.writerow([start, end, laps-1, hrm, ahr, speed_max/10., speed/10., x4, x5, pts, track_name])
     lapFile = open('%s.laps' % name, "wb", **open_extra)
     lapWriter = csv.writer(lapFile)
     lapWriter.writerow(["Time", "Speed", "Lap", "Distance", "kcal", "MaxSpeed", \
                             "x1", "Beats", "sec", "MaxHeart", "MinHeart", \
-                            "InZone", "y4", "Elevation", "y7", "y8", "Track"])
+                            "InZone", "y4", "Elevation", "y8", "Track"])
     for theLap in range(1,laps):
         raw = port.read(0x24)
 
@@ -138,15 +138,15 @@ for track in range(tracks):
         (hh, mm, ss, sss, dist, \
              cal, speed_max, speed, \
              x1, beats_high, beats_mid, beats_low, sec,heart_max,heart_min, \
-             iz_h, iz_m, iz_s, y4, z_low, z_high, y7, y8, \
+             iz_h, iz_m, iz_s, y4, z_low, z_mid, z_high, y8, \
              lap, track, sign) = \
-            struct.unpack(">4BI IxBxB 4BH2B 3BB2B2B HBB", raw)
-        z = z_low + 256*z_high
+            struct.unpack(">4BI IxBxB 4BH2B 3BB3BB HBB", raw)
+        z = z_low | z_mid << 8 | z_high << 16
         time=hh*3600 + mm*60 + ss + sss/100.
         iz = iz_h*3600 + iz_m*60 + iz_s
         lapWriter.writerow([time, speed/10., lap, dist/1e5, cal/1e4, speed_max/10.,x1, \
                                 beats_high*65536 + beats_mid*256 + beats_low, \
-                                sec, heart_max, heart_min, iz, y4, z/1e2, y7, y8, track_name])
+                                sec, heart_max, heart_min, iz, y4, z/1e2, y8, track_name])
     lapFile.close()
     trkFile.close()
 
@@ -173,19 +173,23 @@ for track in range(tracks_with_points):
         if args.debug:
             dump.write(raw)
 
-        (dist, speed0, sec, min, hr, x1, hrm0, izhh, izss, izmm, lat0, lon0, cal, z, pt0, trk, sign) = \
-            struct.unpack("=I2s3BB2s3B5s6sHH4sBB", raw)
+        (dist, speed0, sec, min, hr, x1, hrm0, izhh, izss, izmm, lat0, lon0, cal, \
+             z_low, z_high, pt0, trk, sign) = \
+             struct.unpack("=I2s3BB2s3B5s6sH HB3sBB", raw)
         time = "20{:02d}-{:d}-{:d} {:02d}:{:02d}:{:02d}".format(yr1, mm1, dd1, hr, min, sec)
         (hrm) = struct.unpack(">H",hrm0)[0]/5.
         (speed) = struct.unpack(">H",speed0)[0]#/150
-        (pt,) = struct.unpack(">I",pt0)
+        (pt_high, pt_low) = struct.unpack(">BH",pt0)
+        pt = pt_low | pt_high << 16
 #        (inzone,) = struct.unpack(">H",inzone0)
         lat = pack_coord(b"\x00" + lat0, b'S')
         lon = pack_coord(lon0, b'W')
         inzone = "{:d}:{:d}:{:d}".format(izhh, izmm, izss) # FIXME replace with plain seconds
-        ptsWriter.writerow([dist/1e5, speed/160., time, hrm, x1, inzone, lat, lon, cal, z/100., pt, track_name])
+        ptsWriter.writerow([dist/1e5, speed/160., time, hrm, x1, inzone, lat, lon, cal, \
+                                (z_low | z_high << 16)/100., \
+                                pt, track_name])
         if pt % 100 == 0:
-            print("{:.0f}%".format(100*pt/pts))
+            print("{:.0f}%".format(100.*pt/pts))
 #        pts = pts - 1
     ptsFile.close()
     if args.hook:
