@@ -82,7 +82,7 @@ with open(base+".track") as t:
                     # print("Point {:s} Over the lap {:s} by distance".format(thePoint["No"], theLap["Lap"]))
                     lap_start = time
                     break
-                if time > lap_start and not int(theLap["x1"]):
+                if time > lap_start and not int(theLap["autolap"]):
                     # print("Point {:s} {:s} Over the lap {:s} {:s} by time".format(thePoint["No"], time.isoformat(), theLap["Lap"], lap_start.isoformat()))
                     lap_start = time
                     break

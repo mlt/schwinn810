@@ -127,7 +127,7 @@ for track in range(tracks):
     lapFile = open('%s.laps' % name, "wb", **open_extra)
     lapWriter = csv.writer(lapFile)
     lapWriter.writerow(["Time", "Speed", "Lap", "Distance", "kcal", "MaxSpeed", \
-                            "x1", "Beats", "sec", "MaxHeart", "MinHeart", \
+                            "autolap", "Beats", "sec", "MaxHeart", "MinHeart", \
                             "InZone", "y4", "Elevation", "y8", "Track"])
     for theLap in range(1,laps):
         raw = port.read(0x24)
@@ -137,14 +137,14 @@ for track in range(tracks):
 
         (hh, mm, ss, sss, dist, \
              cal, speed_max, speed, \
-             x1, beats_high, beats_mid, beats_low, sec,heart_max,heart_min, \
+             autolap, beats_high, beats_mid, beats_low, sec,heart_max,heart_min, \
              iz_h, iz_m, iz_s, y4, z_low, z_mid, z_high, y8, \
              lap, track, sign) = \
             struct.unpack(">4BI IxBxB 4BH2B 3BB3BB HBB", raw)
         z = z_low | z_mid << 8 | z_high << 16
         time=hh*3600 + mm*60 + ss + sss/100.
         iz = iz_h*3600 + iz_m*60 + iz_s
-        lapWriter.writerow([time, speed/10., lap, dist/1e5, cal/1e4, speed_max/10.,x1, \
+        lapWriter.writerow([time, speed/10., lap, dist/1e5, cal/1e4, speed_max/10., autolap, \
                                 beats_high*65536 + beats_mid*256 + beats_low, \
                                 sec, heart_max, heart_min, iz, y4, z/1e2, y8, track_name])
     lapFile.close()
