@@ -1,6 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # This script converts lap and point data into TCX history
 
+from __future__ import print_function
 import argparse, os
 from csv import DictReader
 from pytz import timezone, utc
@@ -25,6 +26,7 @@ with open(base+".track") as t:
         track_start = tz.localize(datetime.strptime(track["Start"], "%Y-%m-%d %H:%M:%S"))
     except:                     # support for legacy format with standalone x1
         track_start = tz.localize(datetime.strptime("{:s}:{:s}".format(track["Start"], track["x1"]), "%Y-%m-%d %H:%M:%S"))
+    laps_left = int(track["Laps"])
 
 #    e = datetime.strptime(track["End"], "%Y-%m-%d %H:%M").replace(tzinfo=tz)
     print("""<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -45,6 +47,7 @@ with open(base+".track") as t:
         points = DictReader(p)
         thePoint = next(points)
         for theLap in laps:
+            laps_left -= 1
             time = float(theLap["Time"])
             kcal = int(float(theLap["kcal"]))
             lap_dist = float(theLap["Distance"])*1.e3
@@ -82,7 +85,7 @@ with open(base+".track") as t:
                     # print("Point {:s} Over the lap {:s} by distance".format(thePoint["No"], theLap["Lap"]))
                     lap_start = time
                     break
-                if time > lap_start and not int(theLap["autolap"]):
+                if time > lap_start and not int(theLap["autolap"]) and laps_left:
                     # print("Point {:s} {:s} Over the lap {:s} {:s} by time".format(thePoint["No"], time.isoformat(), theLap["Lap"], lap_start.isoformat()))
                     lap_start = time
                     break
