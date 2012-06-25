@@ -26,7 +26,6 @@ with open(base+".track") as t:
         track_start = tz.localize(datetime.strptime(track["Start"], "%Y-%m-%d %H:%M:%S"))
     except:                     # support for legacy format with standalone x1
         track_start = tz.localize(datetime.strptime("{:s}:{:s}".format(track["Start"], track["x1"]), "%Y-%m-%d %H:%M:%S"))
-    laps_left = int(track["Laps"])
 
 #    e = datetime.strptime(track["End"], "%Y-%m-%d %H:%M").replace(tzinfo=tz)
     print("""<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
@@ -34,20 +33,18 @@ with open(base+".track") as t:
 
  <Activities>
   <Activity Sport="Running">
-   <Id>{:s}</Id>""".format(track_start.isoformat()))
+   <Id>{:s}</Id>""".format(track_start.astimezone(utc).strftime("%Y-%m-%dT%H:%M:%SZ")))
     lap_start = track_start
     time_prev = 0.
     kcal_prev = 0
     dist_prev = 0.
     beats_prev = 0
-    sec_prev = 0
 
     with open(base+".laps") as l, open(base+".points") as p:
         laps = DictReader(l)
         points = DictReader(p)
         thePoint = next(points)
         for theLap in laps:
-            laps_left -= 1
             time = float(theLap["Time"])
             kcal = int(float(theLap["kcal"]))
             lap_dist = float(theLap["Distance"])*1.e3
@@ -63,10 +60,6 @@ with open(base+".track") as t:
                                                                                  theLap["MaxSpeed"], \
                                                                                  kcal - kcal_prev, \
                                                                                  int((beats - beats_prev)/(time - time_prev))))
-            sec = int(theLap["sec"])
-            lap_start += timedelta(seconds=sec - sec_prev)
-            # lap_start += timedelta(seconds=time - time_prev)
-            sec_prev = sec
             time_prev = time
             kcal_prev = kcal
             dist_prev = lap_dist
@@ -81,13 +74,8 @@ with open(base+".track") as t:
             while True:
                 time = tz.localize(datetime.strptime(thePoint["Time"], "%Y-%m-%d %H:%M:%S"))
                 dist = float(thePoint["Distance"])*1.e3
-                if dist > lap_dist: # if for some reason we didn't jump to next lap before
-                    # print("Point {:s} Over the lap {:s} by distance".format(thePoint["No"], theLap["Lap"]))
-                    lap_start = time
-                    break
-                if time > lap_start and not int(theLap["autolap"]) and laps_left:
-                    # print("Point {:s} {:s} Over the lap {:s} {:s} by time".format(thePoint["No"], time.isoformat(), theLap["Lap"], lap_start.isoformat()))
-                    lap_start = time
+                if dist > lap_dist: # the only reliable next lap criteria
+                    lap_start = time # the only source of absolute time
                     break
                 print("""     <Trackpoint>
       <Time>{:s}</Time>
