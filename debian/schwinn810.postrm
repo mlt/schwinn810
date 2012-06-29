@@ -1,0 +1,11 @@
+#!/bin/sh
+
+CONFIG=/etc/schwinn810.conf
+
+if [[ $1 = purge ]]; then
+    test -x /usr/bin/ucfr && ucfr --force --purge schwinn810 $CONFIG
+    test -x /usr/bin/ucf && ucf --purge $CONFIG
+    rm -f $CONFIG
+fi
+
+#DEBHELPER#

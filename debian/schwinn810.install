@@ -1,0 +1,7 @@
+src/download.py usr/share/schwinn810/
+src/settings.py usr/share/schwinn810/
+src/csv2tcx.py usr/share/schwinn810/
+linux/babelize.sh usr/share/schwinn810/
+linux/env.awk usr/share/schwinn810/
+linux/schwinn810 usr/bin/
+linux/schwinn810_udev usr/share/schwinn810/

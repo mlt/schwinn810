@@ -1,0 +1,56 @@
+#!/bin/sh -e
+
+case "$1" in
+    configure|reconfigure)
+	
+	. /usr/share/debconf/confmodule
+	
+	TMPFILE=$(mktemp /tmp/schwinn810-postinst.XXXXXX)
+	trap "rm -f $TMPFILE" 0
+
+	echo "# use dpkg-reconfigure -plow schwinn810" >> $TMPFILE
+
+	db_get schwinn810/auto || true
+	if [[ $RET = true ]]; then
+	    echo "AUTO=true" >> $TMPFILE
+	else
+	    echo "AUTO=" >> $TMPFILE
+	fi
+	
+	db_get schwinn810/port || true
+	echo "PORT=$RET" >> $TMPFILE
+	
+	db_get schwinn810/dir || true
+	echo "DIR=$RET" >> $TMPFILE
+	
+	db_get schwinn810/notify || true
+	if [[ $RET = true ]]; then
+	    echo "NOTIFY=true" >> $TMPFILE
+	else
+	    echo "NOTIFY=" >> $TMPFILE
+	fi
+	
+	db_get schwinn810/hook || true
+	echo "HOOK=$RET" >> $TMPFILE
+	
+#   db_get schwinn810/offset || true
+	OFF=$(date +%z)
+	OFF=${OFF/00/}
+	echo "OFFSET=$[-OFF]" >> $TMPFILE
+
+	db_get schwinn810/debug || true
+	if [[ $RET = true ]]; then
+	    echo "DEBUG=true" >> $TMPFILE
+	else
+	    echo "DEBUG=" >> $TMPFILE
+	fi
+	
+	ucf --debconf-ok $TMPFILE /etc/schwinn810.conf
+	chmod +r /etc/schwinn810.conf
+	ucfr schwinn810 /etc/schwinn810.conf
+esac
+	
+#DEBHELPER#
+
+udevadm control --reload-rules
+
