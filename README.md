@@ -40,6 +40,16 @@ Right now there are few independent components (with some code duplication like 
 
 Batch/shell scripts babelize and schwinn810 can be renamed for convenience.
 
+## Installation
+
+### Windows
+
+Please follow [this guide](https://github.com/mlt/schwinn810/wiki/Windows).
+
+### Ubuntu GNU/Linux
+
+There is a [ppa available](https://launchpad.net/~mtitov/+archive/schwinn810) with package for Oneiric Ocelot. Install as any other package. Use `dpkg-reconfigure -plow schwinn810` to change settings.
+
 ## Build
 
 ### Just using up-to-date code
@@ -64,4 +74,4 @@ At this point one should not expect an exact copy of software for other OSes.
 4. ~~Make it more [unicsv](http://www.gpsbabel.org/htmldoc-development/fmt_unicsv.html)-friendly so [gpsbabel](http://www.gpsbabel.org) can convert data to [GPX](http://www.gpsbabel.org/htmldoc-development/fmt_gpx.html) and/or [TCX](http://www.gpsbabel.org/htmldoc-development/fmt_gtrnctr.html).~~
 4. Write some GUI, R code
 5. Export to various web sites
-6. Move command line options to a configuration file and **make things debconf friendly**
+6. ~~Move command line options to a configuration file and **make things debconf friendly**~~
