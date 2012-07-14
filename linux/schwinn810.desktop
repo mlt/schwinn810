@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Schwinn 810 GPS watch monitor
+Exec=/usr/bin/env python /usr/share/schwinn810/schwinn810-tray.py
+Type=Application
+

@@ -1,1 +1,1 @@
-SUBSYSTEMS=="usb", SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea61", SYMLINK+="schwinn810", MODE="0666", RUN+="/usr/share/schwinn810/schwinn810_udev"
+SUBSYSTEMS=="usb", SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea61", SYMLINK+="schwinn810", MODE="0666"
