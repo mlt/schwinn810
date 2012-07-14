@@ -6,7 +6,7 @@
 [[ $DEBUG ]] && DEBUG="--debug"
 YEAR=$(date +%Y)
 umask 0002
-mkdir -p 2775 $DIR/$YEAR
+mkdir -p -m 2775 $DIR/$YEAR
 #mkdir -p -m ug=rwx,o=rx $DIR/$YEAR
 
 /usr/share/schwinn810/download.py $DEBUG $HOOK \
