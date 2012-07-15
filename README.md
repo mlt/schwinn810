@@ -2,6 +2,8 @@
 
 There are [inexpensive sport watches](https://www.google.com/search?tbm=shop&q=schwinn+810+gps) out there, however the software is limited to MS Windows and is [quite ugly](http://www.amazon.com/Schwinn-Tracking-Heart-Rate-Monitor/product-reviews/B006JPBALS/).
 
+[Plug'n'play on Ubuntu GNU/Linux video](https://vimeo.com/45802873).
+
 ## Idea ##
 
 All looks like [USBXpress Development Tools](http://www.silabs.com/products/mcu/Pages/USBXpress.aspx)
