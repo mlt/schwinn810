@@ -25,5 +25,6 @@ override_dh_fixperms:
 	chmod 2775 debian/schwinn810/var/lib/schwinn810
 	chown :users debian/schwinn810/var/lib/schwinn810
 
-#	chmod +x debian/schwinn810/usr/share/schwinn810/env.awk
-#	chmod +x debian/schwinn810/usr/share/schwinn810/schwinn810_udev
+override_dh_clean:
+#	-rm debian/files
+	debconf-updatepo

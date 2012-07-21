@@ -11,7 +11,7 @@ case "$1" in
 	echo "# use dpkg-reconfigure -plow schwinn810" >> $TMPFILE
 
 	db_get schwinn810/auto || true
-	if [[ $RET = true ]]; then
+	if [ x"$RET" = x"true" ]; then
 	    echo "AUTO=true" >> $TMPFILE
 	else
 	    echo "AUTO=" >> $TMPFILE
@@ -24,7 +24,7 @@ case "$1" in
 	echo "DIR=$RET" >> $TMPFILE
 	
 	db_get schwinn810/notify || true
-	if [[ $RET = true ]]; then
+	if [ x"$RET" = x"true" ]; then
 	    echo "NOTIFY=true" >> $TMPFILE
 	else
 	    echo "NOTIFY=" >> $TMPFILE
@@ -35,11 +35,11 @@ case "$1" in
 	
 #   db_get schwinn810/offset || true
 	OFF=$(date +%z)
-	OFF=${OFF/00/}
+	OFF=${OFF%00}
 	echo "OFFSET=$[-OFF]" >> $TMPFILE
 
 	db_get schwinn810/debug || true
-	if [[ $RET = true ]]; then
+	if [ x"$RET" = x"true" ]; then
 	    echo "DEBUG=true" >> $TMPFILE
 	else
 	    echo "DEBUG=" >> $TMPFILE

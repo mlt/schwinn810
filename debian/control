@@ -2,15 +2,16 @@ Source: schwinn810
 Section: misc
 Priority: extra
 Maintainer: Mikhail Titov <mlt@gmx.us>
-Build-Depends-Indep: debhelper (>= 8.0.0)
-Standards-Version: 3.9.2
+Build-Depends-Indep: debhelper (>= 8.0.0), po-debconf
+Standards-Version: 3.9.3
 Homepage: https://github.com/mlt/schwinn810
 Vcs-Git: git://github.com/mlt/schwinn810.git
 Vcs-Browser: https://github.com/mlt/schwinn810
 
 Package: schwinn810
 Architecture: all
-Depends: python-tz, python-serial, ${shlibs:Depends}, ${misc:Depends}
+Depends: ucf, python-tz, python-serial, ${misc:Depends}, ${python:Depends}
 Recommends: gpsbabel, libnotify-bin
 Description: Software for Schwinn 810 GPS sport watch with heart rate monitor
- Set of a command line tools to extract data and convert into common formats, e.g. GPX, TCX, KML
+ Set of a command line tools to extract data and convert into common formats,
+ e.g. GPX, TCX, KML.

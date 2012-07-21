@@ -1,4 +1,4 @@
-#!/usr/bin/python3.2
+#!/usr/bin/env python
 from __future__ import print_function
 import sys,os
 import subprocess,stat,tempfile

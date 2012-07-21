@@ -2,14 +2,19 @@
 
 . /etc/schwinn810.conf
 
-[[ $HOOK ]] && HOOK="--hook $HOOK"
-[[ $DEBUG ]] && DEBUG="--debug"
+if test -r "$HOME/.schwinn810.conf"
+then
+    . ~/.schwinn810.conf
+fi
+
+HOOK=${HOOK:+--hook $HOOK}
+DEBUG=${DEBUG:+--debug}
+
 YEAR=$(date +%Y)
 umask 0002
-mkdir -p -m 2775 $DIR/$YEAR
-#mkdir -p -m ug=rwx,o=rx $DIR/$YEAR
+mkdir -p -m 2775 "$DIR/$YEAR"
 
 /usr/share/schwinn810/download.py $DEBUG $HOOK \
     --port $PORT \
-    --dir $DIR/$YEAR && \
-[[ $NOTIFY ]] && notify-send -u low -c transfer.complete "Schwinn 810 GPS watch" "Data extracted"
+    --dir "$DIR/$YEAR" && \
+[ "$NOTIFY" ] && notify-send -u low -c transfer.complete "Schwinn 810 GPS watch" "Data extracted"
