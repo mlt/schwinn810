@@ -1,0 +1,48 @@
+Template: schwinn810/auto
+Type: boolean
+Default: true
+_Description: Extract automatically?
+ Select true if you would like automatic extraction upon connect.
+ .
+ This makes use of udev to run script.
+
+Template: schwinn810/port
+Type: string
+Default: /dev/schwinn810
+_Description: Device to communicate with watch:
+ This package installs udev rule that creates a symbolic link
+ based on USB vendor & product IDs.
+ .
+ This link usually points to /dev/ttyUSB0 unless there are other devices.
+
+Template: schwinn810/dir
+Type: string
+Default: /var/lib/schwinn810
+_Description: Target folder:
+ All members of users group are able to read/write data at /var/lib/schwinn810 .
+ You may override this by creating ~/.schwinn810.conf with DIR="~/Documents/My Runs" or alike.
+
+Template: schwinn810/notify
+Type: boolean
+Default: true
+_Description: Do you want to be notified when data are extracted?
+ Relies on DBUS, libnotify, and notify-send to send notifications about events.
+
+Template: schwinn810/hook
+Type: string
+Default: /usr/share/schwinn810/babelize.sh
+_Description: Post-extraction actions:
+ You can automatically perform some actions on extracted track.
+ The command will receive an absolute path name to extracted track without file extension.
+ .
+ Default is to use built-in TCX converter
+ and gpsbabel (if installed) to get KML & GPX.
+
+Template: schwinn810/debug
+Type: boolean
+Default: false
+_Description: Would you like to create a binary dump in /tmp/schwinn810.bin ?
+ This will create /tmp/schwinn810.bin while extracting data.
+ .
+ Note that if automatic extraction is used, this file is owned by root.
+ This may cause problems when regular user extracts data thereafter.
