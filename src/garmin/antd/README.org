@@ -1,0 +1,4 @@
+* Notice
+
+This code is a part of [[https://github.com/braiden/python-ant-downloader][another project]]. Original copyright apply. See license details in [[./LICENSE][LICENSE]].
+
