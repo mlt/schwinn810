@@ -1,0 +1,15 @@
+*~
+*.pyc
+*.bin
+*.png
+*.rda
+*.htm
+*.log
+*.csv
+*.points
+*.laps
+*.track
+*.tcx
+*.kml
+*.gpx
+
