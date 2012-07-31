@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from device import Device, SerialException
-from writer import Writer
-from progress_text import TextProgress
+from core.device import Device, SerialException
+from core.writer_csv import Writer
+from core.progress_text import TextProgress
 import argparse, os
 import logging
 
@@ -52,5 +52,5 @@ under the terms of GPL-3 or later version.
 if __name__ == '__main__':
     # FORMAT = FORMAT = '%(asctime)-15s %(message)s'
     # logging.basicConfig(level=logging.DEBUG, format=FORMAT)
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.WARNING)
     main()

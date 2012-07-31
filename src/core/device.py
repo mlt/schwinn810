@@ -88,7 +88,7 @@ class Device:
 
     def _read_tracks(self, writer, count):
         tracks_with_points = 0
-        for track in range(count):
+        for i in range(count):
             track = self.reader.read_track()
             tracks_with_points += (track['Points']>0)
             _log.info("There are %d laps in %s" % (track['Laps'], track['Track']))
@@ -96,7 +96,7 @@ class Device:
 
             writer.add_track(track)
 
-            for theLap in range(track['Laps']):
+            for j in range(track['Laps']):
                 lap = self.reader.read_lap()
                 lap['Track'] = track['Track']
                 # _log.debug("Lap={:d}, Beats={:d}, Elevation={:f}".format(lap['Lap'], lap['Beats'], lap['Elevation']))
@@ -115,11 +115,11 @@ class Device:
         # now all track points
         # for tracks containing them only!
         for track in range(tracks_with_points):
-            if progress:
-                progress.track(track, tracks_with_points)
             summary = self.reader.read_points_summary()
             _log.info("Fetching %d points from %s" % (summary['Points'], summary['Track']))
-            writer.begin_points(summary['Track'])
+            if progress:
+                progress.track(summary['Track'], track+1, tracks_with_points, summary['Points'])
+            writer.begin_points(summary)
 
             for thePoint in range(summary['Points']):
                 if progress:
