@@ -17,19 +17,21 @@ under the terms of GPL-3 or later version.
 """)
 
     parser = argparse.ArgumentParser(description='Download tracks from Schwinn 810 GPS sport watch with HRM.')
-    parser.add_argument('--port', nargs=1, dest='port',
-                       default=[ {'posix': '/dev/ttyUSB0', 'nt': 'COM5'}[os.name] ],
-    #                   default=['COM5'] if os.name=='nt' else ['/dev/ttyUSB0'],
-                       help='Virtual COM port created by cp201x for Schwinn 810 GPS watch')
+    parser.add_argument('--port', nargs=1,
+                        default=[ {'posix': '/dev/ttyUSB0', 'nt': 'COM5'}[os.name] ],
+                        help='Virtual COM port created by cp201x for Schwinn 810 GPS watch')
     parser.add_argument('--hook', nargs=1, default = [ None ],
-                       help='Callback upon track extraction')
-    parser.add_argument('--dir', nargs=1, dest='dir',
-                       default=['.'],
-                       help='Where to store data')
+                        help='Callback upon track extraction')
+    parser.add_argument('--dir', nargs=1,
+                        default=['.'],
+                        help='Where to store data')
     parser.add_argument('--debug', action='store_true',
                         help='Dump all replies in a binary form into a single file schwinn810.bin in TEMP dir')
-    parser.add_argument('--delete', dest='delete', action='store_true',
-                       help='Delete all data from watches after download?')
+    parser.add_argument('--delete', action='store_true',
+                        help='Delete all data from watches after download?')
+    parser.add_argument('--progress', choices=['text', 'gtk'],
+                        default=['text'],
+                        help='Progress indicator')
     # parser.add_argument('--add-year', dest='add_year', action='store_true',
     #                    help='Creates subfolder in dir named after the current year')
     # parser.add_argument('--add-id', dest='add_id', action='store_true',
@@ -41,7 +43,14 @@ under the terms of GPL-3 or later version.
     d.debug = args.debug
     try:
         w = Writer(args.dir[0], args.hook[0])
-        d.read(w, TextProgress())
+        p = TextProgress()
+        if args.progress == 'gtk':
+            try:
+                from core.progress_gtk import GtkProgress
+                p = GtkProgress()
+            except ImportError:
+                _log.error('Failed to create GTK backend')
+        d.read(w, p)
         d.close()
     except SerialException as e:
         _log.fatal("Port can't be opened :(")
