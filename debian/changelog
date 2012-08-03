@@ -1,3 +1,11 @@
+schwinn810 (0.2) oneiric; urgency=low
+
+  * modular design
+  * initial support for Cresta/Mio
+  * GTK progress
+
+ -- Mikhail Titov <mlt@gmx.us>  Thu, 02 Aug 2012 21:37:38 -0500
+
 schwinn810 (0.1.1) oneiric; urgency=low
 
   * Cleanup to be standards compliant

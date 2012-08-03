@@ -16,5 +16,6 @@ mkdir -p -m 2775 "$DIR/$YEAR"
 
 /usr/share/schwinn810/download.py $DEBUG $HOOK \
     --port $PORT \
+    --progress gtk \
     --dir "$DIR/$YEAR" && \
 [ "$NOTIFY" ] && notify-send -u low -c transfer.complete "Schwinn 810 GPS watch" "Data extracted"

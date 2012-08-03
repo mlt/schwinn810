@@ -8,6 +8,7 @@ import csv
 import serial
 import re
 from sys import exit
+from commands import *
 #from yaml import load, dump
 
 parser = argparse.ArgumentParser(description='Download tracks from Schwinn 810 GPS sport watches with HRM.')
@@ -33,10 +34,6 @@ parser.add_argument('--save', dest='save', action='store_true',
 
 args = parser.parse_args()
 
-connect    = bytearray.fromhex("EEEE000000000000000000000000000000000000000000000000000000000000")
-disconnect = bytearray.fromhex("FFFFFFFF00000000000000000000000000000000000000000000000000000000")
-settings_read = bytearray.fromhex("000000000000000000000000000000000000000000000000000000000000EEEE")
-
 def unpackBCD(x0):
     x00 = x0
     x = 0
@@ -61,7 +58,7 @@ if not reg:
     except serial.SerialException as e:
         print("Port can't be opened :(", file=sys.stderr)
         exit(-1)
-    port.write(connect)
+    port.write(CONNECT)
 else:
     print("Parsing existing dump in {:s}".format(args.port[0]))
     port = open(args.port[0], "rb")
@@ -88,7 +85,7 @@ print("Found %s" % id)
 if args.save:
     pass
 else:
-    if not reg: port.write(settings_read)
+    if not reg: port.write(READ_SETTINGS)
     raw = port.read(0x24)
 
     if args.debug:
@@ -109,7 +106,7 @@ else:
 if args.debug:
     dump.close()
 
-if not reg: port.write(disconnect)
+if not reg: port.write(DISCONNECT)
 port.close()
 
 print("Done")
