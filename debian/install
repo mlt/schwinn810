@@ -2,6 +2,7 @@ src/core/commands.py usr/share/schwinn810/core/
 src/core/device.py usr/share/schwinn810/core/
 src/core/__init__.py usr/share/schwinn810/core/
 src/core/progress_gtk.py usr/share/schwinn810/core/
+src/core/progress.glade usr/share/schwinn810/core/
 src/core/progress_text.py usr/share/schwinn810/core/
 src/core/reader_cresta.py usr/share/schwinn810/core/
 src/core/reader.py usr/share/schwinn810/core/
