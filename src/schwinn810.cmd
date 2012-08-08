@@ -6,6 +6,7 @@ SET "DIR=%USERPROFILE%\Documents\My Runs"
 download.exe ^
  --port COM1 ^
  --hook %~dp0\babelize.cmd ^
+ --progress qt ^
  --dir "%DIR%"
 
 SET "GPSBABEL=C:\Program Files\GPSBabel\gpsbabel.exe"

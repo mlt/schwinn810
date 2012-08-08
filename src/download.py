@@ -3,7 +3,7 @@ from __future__ import print_function
 from core.device import Device, SerialException
 from core.writer_csv import Writer
 from core.progress_text import TextProgress
-import argparse, os
+import argparse, os, sys
 import logging
 
 _log = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ under the terms of GPL-3 or later version.
                         help='Dump all replies in a binary form into a single file schwinn810.bin in TEMP dir')
     parser.add_argument('--delete', action='store_true',
                         help='Delete all data from watches after download?')
-    parser.add_argument('--progress', choices=['text', 'gtk'],
+    parser.add_argument('--progress', choices=['none', 'text', 'gtk', 'qt'],
                         default=['text'],
                         help='Progress indicator')
     # parser.add_argument('--add-year', dest='add_year', action='store_true',
@@ -39,22 +39,32 @@ under the terms of GPL-3 or later version.
 
     args = parser.parse_args()
 
-    d = Device(args.port[0])
-    d.debug = args.debug
     try:
+        d = Device(args.port[0])
+        d.debug = args.debug
         w = Writer(args.dir[0], args.hook[0])
-        p = TextProgress()
+        p = None
+        if args.progress != 'none':
+            p = TextProgress()  # default progress
         if args.progress == 'gtk':
             try:
                 from core.progress_gtk import GtkProgress
                 p = GtkProgress()
             except ImportError:
                 _log.error('Failed to create GTK backend')
+        elif args.progress == 'qt':
+            try:
+                from PyQt4.QtGui import QApplication
+                from core.progress_qt import QtProgress
+                app = QApplication(sys.argv)
+                p = QtProgress()
+            except ImportError:
+                _log.error('Failed to create QT backend')
         d.read(w, p)
         d.close()
     except SerialException as e:
         _log.fatal("Port can't be opened :(")
-        exit(-1)
+        sys.exit(-1)
 
     print("Done")
 

@@ -4,6 +4,7 @@ from cx_Freeze import setup, Executable
 # C:\Python27\python setup.py build
 # 7z a -xr!*.py* build\exe.win32-2.7\library.zip C:\Python27\Lib\site-packages\pytz
 
+sys.path.append('web')
 
 # Dependencies are automatically detected, but it might need fine tuning.
 #"build_exe": "schwinn810_win32",
@@ -27,4 +28,4 @@ setup(  name = "schwinn810",
         executables = [Executable("download.py", base=base), \
                            Executable("settings.py", base=base), \
                            Executable("csv2tcx.py", base=base), \
-                           Executable("tcx2garmin.py", base=base)])
+                           Executable("web/tcx2web.py", base=base)])
