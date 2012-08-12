@@ -28,14 +28,14 @@ def main():
         garmin = cfg['garmin']
 
         client = connect.GarminConnect()
-        client.username = cfg["username"]
-        client.password = cfg["password"]
+        client.username = garmin["username"]
+        client.password = garmin["password"]
 
         client.data_available(None, "tcx", args.tcx)
         # thread.start_new_thread()
 
     if 'mmf' in cfg:
-        mmv = cfg['mmf']
+        mmf = cfg['mmf']
 
         client = MMF()
         client.username = mmf["username"]
