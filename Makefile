@@ -44,5 +44,6 @@ install:
 	mkdir -p $(DESTDIR)/share/schwinn810/web/antd
 	install -m 0644 src/web/antd/*.py src/web/antd/LICENSE $(DESTDIR)/share/schwinn810/web/antd/
 
+	mkdir -p $(DESTDIR)/bin
 	install -m 0755 linux/schwinn810 $(DESTDIR)/bin/
 	install -m 0755 linux/babelize.sh linux/schwinn810-tray.py $(DESTDIR)/share/schwinn810/
