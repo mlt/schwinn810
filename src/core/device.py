@@ -8,7 +8,7 @@ from commands import *
 from utils import unpack_bcd
 import logging
 # from collections import namedtuple
-from datetime import datetime
+from datetime import datetime, timedelta
 from reader_schwinn import SchwinnReader
 from reader_cresta import CrestaReader
 
@@ -19,10 +19,10 @@ class NotConnected(Exception): pass
 class Device:
     """ Device class to communicate with Schwinn 810 """
 
-    def __init__(self, device=None):
+    def __init__(self, device=None, debug=False):
         self.device = device
+        self._debug = debug
         self.dump = False
-        self.debug = False
         self.connected = False
         self.port = None
         self.reader = None
@@ -62,14 +62,14 @@ class Device:
         else:
             self.connected = True
 
-        if self.debug:
+        if self._debug:
             self.backup = open(os.path.join(tempfile.gettempdir(), "schwinn810.bin"), mode="wb")
             self.backup.write(raw)
 
         (ee, e1, e2, e3, bcd1, bcd2, bcd3, serial, v1, v2, sign1) = struct.unpack("sBBBBBB6s6s7s2xI", raw)
         if sign1:               # 0x0130ff00
             raw = self.port.read(4)
-            if self.debug:
+            if self._debug:
                 self.backup.write(raw)
             (sign2,) = struct.unpack("I", raw)
             if sign1 != sign2:
@@ -107,7 +107,10 @@ class Device:
         if not self.dump:
             self.port.write(READ)
 
-        (tracks, waypoints) = self.reader.read_summary()
+        summary = self.reader.read_summary()
+        tracks = summary['Tracks']
+        waypoints = summary['Waypoints']
+        # (tracks, waypoints) = self.reader.read_summary()
         _log.info("We've got %d tracks and %d waypoints to download" % (tracks, waypoints))
 
         tracks_with_points = self._read_tracks(writer, tracks)
@@ -126,7 +129,9 @@ class Device:
                     progress.point(thePoint, summary['Points'])
                 point = self.reader.read_point()
                 point['Track'] = summary['Track']
-                point['Time'] = datetime.combine(summary['Start'], point['Time'])
+                point['Time'] = datetime.combine(summary['Start'].date(), point['Time'])
+                if summary['Start'] > point['Time']:
+                    point['Time'] += timedelta(days=1)
                 writer.add_point(point)
             writer.commit()
 
@@ -134,14 +139,23 @@ class Device:
             wpt = self.reader.read_waypoint()
             writer.add_waypoint(wpt)
 
+        self.reader.read_end()
+
+    def read_settings(self, writer):
+        if not self.dump:
+            self.port.write(READ_SETTINGS)
+
+        s = self.reader.read_settings()
+        writer.save_settings(s)
+
     def clear(self):
-        if not self.dump and self.debug:
+        if not self.dump and self._debug:
             self.port.write(DELETE)
         else:
             _log.info("Debug is required for deletion for now")
 
     def close(self):
-        if self.debug:
+        if self._debug:
             self.backup.close()
 
         if not self.dump:

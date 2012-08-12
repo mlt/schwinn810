@@ -2,6 +2,7 @@
 from __future__ import print_function
 from core.device import Device, SerialException
 from core.writer_csv import Writer
+# from extra.writer_sqlite import SQLiteWriter
 from core.progress_text import TextProgress
 import argparse, os, sys
 import logging
@@ -32,6 +33,8 @@ under the terms of GPL-3 or later version.
     parser.add_argument('--progress', choices=['none', 'text', 'gtk', 'qt'],
                         default=['text'],
                         help='Progress indicator')
+    parser.add_argument('--read-settings', action='store_true',
+                        help='Retrieve settings from watch')
     # parser.add_argument('--add-year', dest='add_year', action='store_true',
     #                    help='Creates subfolder in dir named after the current year')
     # parser.add_argument('--add-id', dest='add_id', action='store_true',
@@ -40,8 +43,8 @@ under the terms of GPL-3 or later version.
     args = parser.parse_args()
 
     try:
-        d = Device(args.port[0])
-        d.debug = args.debug
+        d = Device(args.port[0], args.debug)
+        # w = SQLiteWriter(args.dir[0], args.hook[0])
         w = Writer(args.dir[0], args.hook[0])
         p = None
         if args.progress != 'none':
@@ -61,6 +64,8 @@ under the terms of GPL-3 or later version.
             except ImportError:
                 _log.error('Failed to create QT backend')
         d.read(w, p)
+        if args.read_settings:
+            d.read_settings(w)
         d.close()
     except SerialException as e:
         _log.fatal("Port can't be opened :(")

@@ -6,6 +6,7 @@ from utils import *
 import logging
 from datetime import datetime, time, date
 from reader import *
+# from binascii import hexlify
 
 _log = logging.getLogger(__name__)
 
@@ -16,7 +17,13 @@ class SchwinnReader(Reader):
 
     def read_summary(self):
         raw = self.read(0x24)
-        return struct.unpack("=28xHH4x", raw)
+        s = {}
+        (s['T1'], s['T2'] , s['24hr'], s['Tracks'], s['Waypoints'], sign) = \
+             struct.unpack("<2B 6x B 19x 2H 3x B", raw)
+        # a = hexlify(raw)
+        # _log.debug(a)
+        # return struct.unpack("=28xHH4x", raw)
+        return s
 
     def read_track(self):
         raw = self.read(0x24)
@@ -58,12 +65,12 @@ class SchwinnReader(Reader):
 
     def read_points_summary(self):
         raw = self.read(0x24)
-        (min1, hr1, dd1, mm1, yr1, lap_count, hrm, pts, name0, ahr, min2, hr2, dd2, mm2, yr2, sign) = \
-            struct.unpack(">x5BH4xBxHxx7sB5B4xB", raw)
+        (sec1, min1, hr1, dd1, mm1, yr1, lap_count, hrm, pts, name0, ahr, min2, hr2, dd2, mm2, yr2, sign) = \
+            struct.unpack(">6BH4xBxHxx7sB5B4xB", raw)
         if 0xFA != sign:
             raise BadSignature
         track_name = name0.decode('ascii')
-        return {'Track': track_name, 'Points': pts, 'Start': date(2000+yr1, mm1, dd1)}
+        return {'Track': track_name, 'Points': pts, 'Start': datetime(2000+yr1, mm1, dd1, hr1, min1, sec1)}
 
     def read_point(self):
         raw = self.read(0x24)
@@ -98,6 +105,30 @@ class SchwinnReader(Reader):
         wpt['Longitude'] = pack_coord(lon0, b'W')
         wpt['Elevation'] = z/1e2
         return wpt
+
+    def read_end(self):
+        raw = self.read(0x24)
+        # a = hexlify(raw)
+        # _log.debug(a)
+
+    def read_settings(self):
+        """ Autolap: off, 0.4, 1, 2, 3, 4, 5 """
+        raw = self.read(0x25)
+        # a = hexlify(raw)
+        # _log.debug(a)
+        s = {}
+        (s['Female'], s['Age'], s['Metric'], s['x3'],  s['kg'], s['cm'], s['zone_active'], \
+             s['zone1_low'],  s['zone1_high'], s['zone2_low'], s['zone2_high'], s['zone3_low'],\
+             s['zone3_high'], s['zone_alarm'], s['x5'], s['Autolap'], s['Contrast'], s['x8'], s['NightMode'], \
+             s['y2'], s['lb'], s['in'], s['24hr'], s['y6'], s['y7'], s['y8'], s['z1'], s['z2'], sign1, sign2) = \
+             struct.unpack("=28B2I", raw)
+        # contrast 8 => 50%
+        # x5=alert
+        # raw = self.read(0x24)
+        # a = hexlify(raw)
+        # _log.debug(a)
+        # _log.debug(s)
+        return s
 
 if __name__ == '__main__':
     pass

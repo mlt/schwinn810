@@ -16,8 +16,10 @@ class CrestaReader(Reader):
 
     def read_summary(self):
         raw = self.read(0x20)
-        (tracks,) = struct.unpack("=28xH2x", raw)
-        return (tracks, 0)
+        s = {}
+        (s['T1'], s['T2'] , s['24hr'], s['Tracks']) = \
+             struct.unpack("<2B 6x B 19x H2x", raw)
+        return s
 
     def read_track(self):
         raw = self.read(0x20)
@@ -83,6 +85,9 @@ class CrestaReader(Reader):
         point['Longitude'] = pack_coord(lon0, b'W')
         point['InZone'] = izhh*3600 + izmm*60 + izss
         return point
+
+    def read_end(self):
+        raw = self.read(0x20)
 
 if __name__ == '__main__':
     pass

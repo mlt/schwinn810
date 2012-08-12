@@ -21,7 +21,11 @@ class Writer:
                     "InZone", "y4", "Elevation", "Track"]
     point_keys = ["Distance", "Speed", "Time", "Heart", "x1", "InZone", \
                       "Latitude", "Longitude", "kcal", "Elevation", "No", "Track"]
-    waypoint_keys = ["Timestamp", "Name", "Latitude", "Longitude","x1","x2","Elevation","No"]
+    waypoint_keys = ["Time", "Name", "Latitude", "Longitude","x1","x2","Elevation","No"]
+    settings_keys = ["Female", "Age", "Metric", "x3",  "kg", "cm", "zone_active", \
+                         "zone1_low",  "zone1_high", "zone2_low", "zone2_high", "zone3_low",\
+                         "zone3_high", "zone_alarm", "x5", "Autolap", "Contrast", "x8", "NightMode", \
+                         "y2",  "lb", "in", "24hr", "y6", "y7", "y8", "z1", "z2"]
 
     def __init__(self, dir, hook=None):
         self.dir = dir
@@ -85,9 +89,12 @@ class Writer:
         """ Append point to a database """
         self.wptWriter.writerow(wp)
 
-    def __del__(self):
-        # self.lapFile.close()
-        _log.info("Writer destroyed")
+    def save_settings(self, s):
+        name = os.path.join(self.dir, "settings.csv")
+        f = open(name, "wb", **open_extra)
+        w = csv.DictWriter(f, self.settings_keys)
+        w.writeheader()
+        w.writerow(s)
 
 if __name__ == '__main__':
     pass
