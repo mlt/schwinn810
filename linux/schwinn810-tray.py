@@ -4,6 +4,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 import dbus
+from time import sleep
 from subprocess import Popen
 
 class DeviceAddedListener:
@@ -43,6 +44,7 @@ class DeviceAddedListener:
 
         if device.QueryCapability("serial") and self.check_parent(device):
             self.udi = udi
+            sleep(2)
             return self.fire()
 
     def _removed(self, udi):
