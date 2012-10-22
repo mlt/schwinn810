@@ -39,11 +39,11 @@ install:
 	install -m 0644 $(addprefix src/extra/, $(EXTRA)) $(DESTDIR)/usr/share/schwinn810/extra/
 
 	mkdir -p $(DESTDIR)/usr/share/schwinn810/web
-	install -m 0644 src/web/mmf.py src/web/tcx2web.py $(DESTDIR)/usr/share/schwinn810/web/
+	install -m 0755 src/web/mmf.py src/web/tcx2web.py $(DESTDIR)/usr/share/schwinn810/web/
 
 	mkdir -p $(DESTDIR)/usr/share/schwinn810/web/antd
 	install -m 0644 src/web/antd/*.py src/web/antd/LICENSE $(DESTDIR)/usr/share/schwinn810/web/antd/
 
-	mkdir -p $(DESTDIR)/bin
-	install -m 0755 linux/schwinn810 $(DESTDIR)/bin/
+	mkdir -p $(DESTDIR)/usr/bin
+	install -m 0755 linux/schwinn810 $(DESTDIR)/usr/bin/
 	install -m 0755 linux/babelize.sh linux/schwinn810-tray.py $(DESTDIR)/usr/share/schwinn810/
