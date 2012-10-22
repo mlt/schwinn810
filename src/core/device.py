@@ -22,11 +22,12 @@ class Device:
     def __init__(self, device=None, debug=False):
         self.device = device
         self._debug = debug
-        self.dump = False
+        self.dump = False       # are we reading previously backed up dump?
         self.connected = False
-        self.port = None
-        self.reader = None
-        self.backup = None
+        self.port = None        # device handle
+        self.reader = None      # device specific data chunk parser
+        self.backup = None      # backup file handle
+        self.shift = None       # fix for incorrect TZ set on watch
         if self.device:
             self.open()
 
@@ -94,6 +95,10 @@ class Device:
             _log.info("There are %d laps in %s" % (track['Laps'], track['Track']))
             # _log.debug("Testing", extra = track)
 
+            if self.shift:
+                track['Start'] += self.shift
+                if 'End' in track:
+                    track['End'] += self.shift
             writer.add_track(track)
 
             for j in range(track['Laps']):
@@ -132,6 +137,8 @@ class Device:
                 point['Time'] = datetime.combine(summary['Start'].date(), point['Time'])
                 if summary['Start'] > point['Time']:
                     point['Time'] += timedelta(days=1)
+                if self.shift:
+                    point['Time'] += self.shift
                 writer.add_point(point)
             writer.commit()
 
@@ -151,8 +158,9 @@ class Device:
     def clear(self):
         if not self.dump and self._debug:
             self.port.write(DELETE)
+            self.reader.read_end()
         else:
-            _log.info("Debug is required for deletion for now")
+            _log.warn("Debug is required for deletion for now")
 
     def close(self):
         if self._debug:
@@ -160,6 +168,7 @@ class Device:
 
         if not self.dump:
             self.port.write(DISCONNECT)
+            self.port.read(1)
         self.port.close()
 
 if __name__ == '__main__':

@@ -18,5 +18,6 @@ mkdir -p -m 2775 "$DIR/$YEAR"
     --port $PORT \
     --progress gtk \
     --read-settings \
+    --delete \
     --dir "$DIR/$YEAR" && \
 [ "$NOTIFY" ] && notify-send -u low -c transfer.complete "Schwinn 810 GPS watch" "Data extracted"

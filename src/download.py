@@ -4,6 +4,7 @@ from core.device import Device, SerialException
 from core.writer_csv import Writer
 # from extra.writer_sqlite import SQLiteWriter
 from core.progress_text import TextProgress
+from datetime import timedelta
 import argparse, os, sys
 import logging
 
@@ -35,6 +36,7 @@ under the terms of GPL-3 or later version.
                         help='Progress indicator')
     parser.add_argument('--read-settings', action='store_true',
                         help='Retrieve settings from watch')
+    parser.add_argument('--shift', type=float, help='Time adjustments in hours to apply if wrong TZ was set')
     # parser.add_argument('--add-year', dest='add_year', action='store_true',
     #                    help='Creates subfolder in dir named after the current year')
     # parser.add_argument('--add-id', dest='add_id', action='store_true',
@@ -63,9 +65,15 @@ under the terms of GPL-3 or later version.
                 p = QtProgress()
             except ImportError:
                 _log.error('Failed to create QT backend')
+        if args.shift:
+            d.shift = timedelta(hours=args.shift)
+            _log.info("Applying {:f} hours shift".format(args.shift))
         d.read(w, p)
         if args.read_settings:
+            _log.info("Reading settings")
             d.read_settings(w)
+        if args.delete:
+            d.clear()
         d.close()
     except SerialException as e:
         _log.fatal("Port can't be opened :(")
