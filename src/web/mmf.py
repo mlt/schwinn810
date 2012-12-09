@@ -52,9 +52,8 @@ class MMF(plugin.Plugin):
         if self.logged_in: return
         if self.login_invalid: raise InvalidLogin()
 
-        payload = { 'username_login': self.username,
-                    'password_login': self.password,
-                    'action_type': 'login' }
+        payload = { 'email': self.username,
+                    'password': self.password }
         url = "http://{:s}/auth/login/".format(self.url)
         r = requests.get(url)
         # post login credentials
