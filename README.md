@@ -1,3 +1,10 @@
+# News
+###### 12/27/2012
+Apparently [binary hosting has been deprecated @github](https://github.com/blog/1302-goodbye-uploads).
+If someone is capable of providing Windows (and Mac) binary builds,
+please [create an issue](https://github.com/mlt/schwinn810/issues).
+I might set up Amazon S3 for binaires. Though it may take a while.
+
 # About #
 
 There are [inexpensive sport watches](https://www.google.com/search?tbm=shop&q=schwinn+810+gps) out there, however the software is limited to MS Windows and is [quite ugly](http://www.amazon.com/Schwinn-Tracking-Heart-Rate-Monitor/product-reviews/B006JPBALS/).
@@ -75,5 +82,5 @@ At this point one should not expect an exact copy of software for other OSes.
 3. <del>Write some python (?) code that dumps data from serial port into *CSV*</del>
 4. ~~Make it more [unicsv](http://www.gpsbabel.org/htmldoc-development/fmt_unicsv.html)-friendly so [gpsbabel](http://www.gpsbabel.org) can convert data to [GPX](http://www.gpsbabel.org/htmldoc-development/fmt_gpx.html) and/or [TCX](http://www.gpsbabel.org/htmldoc-development/fmt_gtrnctr.html).~~
 4. Write some GUI, R code
-5. Export to various web sites
+5. ~~Export to various web sites~~ Can someone help with dailymile.com ?
 6. ~~Move command line options to a configuration file and **make things debconf friendly**~~
