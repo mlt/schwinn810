@@ -60,16 +60,8 @@ class MMF(plugin.Plugin):
         _log.debug("Posting login credentials to MMF. username=%s", self.username)
         url = "https://{:s}/auth/login/".format(self.url)
         r = requests.post(url, data=payload, cookies=r.cookies)
-        if 302 != r.status_code:
+        if 200 != r.status_code:
             raise InvalidLogin()
-        # verify we're logged in
-        _log.debug("Checking if login was successful.")
-        username = r.cookies['_cache_username']
-        if username == "":
-            self.login_invalid = True
-            raise InvalidLogin()
-        elif username != self.username:
-            _log.warning("Username mismatch, probably OK, if upload fails check user/pass. %s != %s" % (username, self.username))
         self.logged_in = True
         self.cookies = r.cookies
     
