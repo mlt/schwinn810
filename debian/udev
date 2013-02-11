@@ -1,1 +1,2 @@
 SUBSYSTEMS=="usb", SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea61", SYMLINK+="schwinn810", MODE="0666"
+ACTION=="add|change", SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea61", ENV{ID_MM_DEVICE_IGNORE}="1"
