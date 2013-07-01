@@ -16,9 +16,11 @@ class CrestaReader(Reader):
 
     def read_summary(self):
         raw = self.read(0x20)
-        s = {'Waypoints': 0}
-        (s['T1'], s['T2'] , s['24hr'], s['Tracks']) = \
-             struct.unpack("<2B 6x B 19x H2x", raw)
+        s = {}
+        (s['T1'], s['T2'] , s['24hr'], s['Tracks'], s['Waypoints'], sign) = \
+             struct.unpack("<2B 6x B 19x H2B", raw)
+        if 0xFF != sign:
+            raise BadSignature
         return s
 
     def read_track(self):
@@ -85,6 +87,20 @@ class CrestaReader(Reader):
         point['Longitude'] = pack_coord(lon0, b'W')
         point['InZone'] = izhh*3600 + izmm*60 + izss
         return point
+
+    def read_waypoint(self):
+        raw = self.read(0x20)
+        wpt = {}
+        (yy, mm, dd, hh, mn, ss, \
+             name0, lat0, lon0, \
+             x1, x2, z, num) = \
+             struct.unpack("=6B  6s 3x 5s 6s  2B HxB", raw)
+        wpt['Time'] = datetime(2000+yy, mm, dd, hh, mn, ss)
+        wpt['Name'] = name0.decode('ascii')
+        wpt['Latitude'] = pack_coord(b"\x00" + lat0, b'S')
+        wpt['Longitude'] = pack_coord(lon0, b'W')
+        wpt['Elevation'] = z/1e2
+        return wpt
 
     def read_end(self):
         raw = self.read(0x20)
