@@ -16,7 +16,7 @@ class CrestaReader(Reader):
 
     def read_summary(self):
         raw = self.read(0x20)
-        s = {}
+        s = {'Waypoints': 0}
         (s['T1'], s['T2'] , s['24hr'], s['Tracks']) = \
              struct.unpack("<2B 6x B 19x H2x", raw)
         return s

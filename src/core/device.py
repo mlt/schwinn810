@@ -88,10 +88,11 @@ class Device:
         _log.info("Found %s" % id)
 
     def _read_tracks(self, writer, count):
-        tracks_with_points = 0
+        tracks_with_points = []
         for i in range(count):
             track = self.reader.read_track()
-            tracks_with_points += (track['Points']>0)
+            if (track['Points']>0):
+                tracks_with_points += (track, )
             _log.info("There are %d laps in %s" % (track['Laps'], track['Track']))
             # _log.debug("Testing", extra = track)
 
@@ -122,20 +123,23 @@ class Device:
 
         # now all track points
         # for tracks containing them only!
-        for track in range(tracks_with_points):
-            summary = self.reader.read_points_summary()
-            _log.info("Fetching %d points from %s" % (summary['Points'], summary['Track']))
+        track_no = 0
+        for track in tracks_with_points:
+            track_no += 1
+            if isinstance(self.reader, SchwinnReader):
+                summary_dummy = self.reader.read_points_summary()
+            _log.info("Fetching %d points from %s" % (track['Points'], track['Track']))
             if progress:
-                progress.track(summary['Track'], track+1, tracks_with_points, summary['Points'])
-            writer.begin_points(summary)
+                progress.track(track['Track'], track_no, len(tracks_with_points), track['Points'])
+            writer.begin_points(track)
 
-            for thePoint in range(summary['Points']):
+            for thePoint in range(track['Points']):
                 if progress:
-                    progress.point(thePoint, summary['Points'])
+                    progress.point(thePoint, track['Points'])
                 point = self.reader.read_point()
-                point['Track'] = summary['Track']
-                point['Time'] = datetime.combine(summary['Start'].date(), point['Time'])
-                if summary['Start'] > point['Time']:
+                point['Track'] = track['Track']
+                point['Time'] = datetime.combine(track['Start'].date(), point['Time'])
+                if track['Start'] > point['Time']:
                     point['Time'] += timedelta(days=1)
                 if self.shift:
                     point['Time'] += self.shift
