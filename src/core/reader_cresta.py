@@ -76,6 +76,8 @@ class CrestaReader(Reader):
              struct.unpack(">4sH3BBH3B5s6s 2sHBB", raw)
         if 0xFA != sign:
             raise BadSignature
+        if 0 == pt:
+            return None
         point['kcal'] = struct.unpack("<H", raw2)[0]
         point['Distance'] = struct.unpack("<I", dist0)[0] / 1e5
         point['Speed'] =speed/160.9 # really?

@@ -137,13 +137,14 @@ class Device:
                 if progress:
                     progress.point(thePoint, track['Points'])
                 point = self.reader.read_point()
-                point['Track'] = track['Track']
-                point['Time'] = datetime.combine(track['Start'].date(), point['Time'])
-                if track['Start'] > point['Time']:
-                    point['Time'] += timedelta(days=1)
-                if self.shift:
-                    point['Time'] += self.shift
-                writer.add_point(point)
+                if point:
+                    point['Track'] = track['Track']
+                    point['Time'] = datetime.combine(track['Start'].date(), point['Time'])
+                    if track['Start'] > point['Time']:
+                        point['Time'] += timedelta(days=1)
+                    if self.shift:
+                        point['Time'] += self.shift
+                    writer.add_point(point)
             writer.commit()
 
         for wp in range(waypoints):
