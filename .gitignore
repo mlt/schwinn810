@@ -12,4 +12,4 @@
 *.tcx
 *.kml
 *.gpx
-
+win32/build/
