@@ -126,8 +126,8 @@ class Device:
         track_no = 0
         for track in tracks_with_points:
             track_no += 1
-            if isinstance(self.reader, SchwinnReader):
-                summary_dummy = self.reader.read_points_summary()
+            # if isinstance(self.reader, SchwinnReader):
+            summary_dummy = self.reader.read_points_summary()
             _log.info("Fetching %d points from %s" % (track['Points'], track['Track']))
             if progress:
                 progress.track(track['Track'], track_no, len(tracks_with_points), track['Points'])
