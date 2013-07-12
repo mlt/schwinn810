@@ -60,7 +60,7 @@ class CrestaReader(Reader):
         return lap
 
     def read_points_summary(self):
-        raw = self.port.read(0x20)
+        raw = self.read(0x20)
         (min1, hr1, dd1, mm1, yr1, lap_count, hrm, pts, name0, ahr, min2, hr2, dd2, mm2, yr2, sign) = \
             struct.unpack(">x5BH4xBxHxx7sB5BB", raw)
         if 0xFA != sign:
@@ -94,14 +94,18 @@ class CrestaReader(Reader):
         raw = self.read(0x20)
         wpt = {}
         (yy, mm, dd, hh, mn, ss, \
-             name0, lat0, lon0, \
-             x1, x2, z, num) = \
-             struct.unpack("=6B  6s 3x 5s 6s  2B HxB", raw)
+             name0, y, z, \
+             lat0, lon0, \
+             x1, x2, x3, # 00 FF FF
+             num, sign) = \
+             struct.unpack(">6B  6s B H  5s 6s  3B  HB", raw)
+        if 0xF8 != sign:
+            raise BadSignature
         wpt['Time'] = datetime(2000+yy, mm, dd, hh, mn, ss)
         wpt['Name'] = name0.decode('ascii')
         wpt['Latitude'] = pack_coord(b"\x00" + lat0, b'S')
         wpt['Longitude'] = pack_coord(lon0, b'W')
-        wpt['Elevation'] = z/1e2
+        wpt['Elevation'] = z
         return wpt
 
     def read_end(self):
