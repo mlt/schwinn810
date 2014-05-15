@@ -29,6 +29,8 @@
 #!/usr/bin/env python
 
 import time
+import sys
+from os.path import join, dirname
 from ctypes import *
 from ctypes.wintypes import *
 
@@ -62,7 +64,10 @@ ex = UsbxpError
 
 class Usbxp(object):
     def __init__(self, dbg = 0):
-        self.si = windll.SiUSBxp
+        name = {
+            False: 'x86/SiUSBXp.dll',
+            True: 'x64/SiUSBXp.dll'}[sys.maxsize > 2**32]
+        self.si = windll.LoadLibrary(join(dirname(__file__),name))
         self.h = HANDLE()
         self.dbg = dbg
         self.o = 0
@@ -125,17 +130,18 @@ class Usbxp(object):
     def read(self, nb):
         # SI_STATUS SI_Read (HANDLE Handle, LPVOID Buffer, DWORD NumBytesToRead,
         # DWORD *NumBytesReturned, OVERLAPPED* o = NULL)
-        buf = c_char_p('\0' * 4096)
+        buf = (c_ubyte * 4096)()
 #        o = c_char_p('\0' * 4096)
         nr = DWORD()
 #        r = self.si.SI_Read(self.h, byref(buf), DWORD(nb), byref(nr), 0)
         r = self.si.SI_Read(self.h, buf, DWORD(nb), byref(nr), None)
         if r: self.__del__(r)
-        s = buf.value[:nr.value]
+        s = bytearray(buf[:nr.value])
         return s
 
 
     def write(self, s = ""):
+        s = str(s)
         # SI_STATUS SI_Write (HANDLE Handle, LPVOID Buffer, DWORD NumBytesToWrite,
         # DWORD *NumBytesWritten, OVERLAPPED* o = NULL)
         buf = c_char_p(s)
