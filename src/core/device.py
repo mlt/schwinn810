@@ -49,6 +49,7 @@ class Device:
             if 'nt' == os.name:
                 self.port = Usbxp()#dbg=True)
                 self.port.open()
+                self.port.setbr(115200)
             else:
                 self.port = Serial(self.device, 115200, timeout=1, writeTimeout=1)
         else:
