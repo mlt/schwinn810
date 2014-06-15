@@ -168,13 +168,14 @@ class Device:
             _log.warn("Debug is required for deletion for now")
 
     def close(self):
-        if self._debug:
-            self.backup.close()
-
         if not self.dump:
             self.port.write(DISCONNECT)
-            self.port.read(1)
+            self.reader.read_end()
         self.port.close()
+        self.port = None
+
+        if self._debug:
+            self.backup.close()
 
 if __name__ == '__main__':
     pass
