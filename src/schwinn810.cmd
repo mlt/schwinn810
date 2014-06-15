@@ -2,9 +2,9 @@
 cd /d "%~dp0"
 
 SET "DIR=%USERPROFILE%\Documents\My Runs"
+mkdir "%DIR%"
 
 download.exe ^
- --port COM1 ^
  --hook %~dp0\babelize.cmd ^
  --progress qt ^
  --dir "%DIR%"
