@@ -1,4 +1,5 @@
 *~
+*.egg*
 *.pyc
 *.bin
 *.png
@@ -13,3 +14,12 @@
 *.kml
 *.gpx
 win32/build/
+.pc/
+.pybuild/
+.ropeproject/
+build/
+debian/*schwinn810/
+dist/
+doc/_build/
+locale/
+
