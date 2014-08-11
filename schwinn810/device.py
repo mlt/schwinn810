@@ -4,13 +4,13 @@ from __future__ import print_function
 import os, re, stat, tempfile
 import struct
 from serial import Serial, SerialException
-from commands import *
-from utils import unpack_bcd
+from schwinn810.commands import *
+from schwinn810.utils import unpack_bcd
 import logging
 # from collections import namedtuple
 from datetime import datetime, timedelta
-from reader_schwinn import SchwinnReader
-from reader_cresta import CrestaReader
+from schwinn810.reader_schwinn import SchwinnReader
+from schwinn810.reader_cresta import CrestaReader
 
 _log = logging.getLogger(__name__)
 

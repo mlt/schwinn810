@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 from __future__ import print_function
-from core.device import Device, SerialException
-from core.writer_csv import Writer
+from schwinn810.device import Device, SerialException
+from schwinn810.writer_csv import Writer
 # from extra.writer_sqlite import SQLiteWriter
-from core.progress_text import TextProgress
+from schwinn810.progress_text import TextProgress
 from datetime import timedelta
 import argparse, os, sys
 import logging
@@ -53,14 +53,14 @@ under the terms of GPL-3 or later version.
             p = TextProgress()  # default progress
         if args.progress == 'gtk':
             try:
-                from core.progress_gtk import GtkProgress
+                from schwinn810.progress_gtk import GtkProgress
                 p = GtkProgress()
             except ImportError:
                 _log.error('Failed to create GTK backend')
         elif args.progress == 'qt':
             try:
                 from PyQt4.QtGui import QApplication
-                from core.progress_qt import QtProgress
+                from schwinn810.progress_qt import QtProgress
                 app = QApplication(sys.argv)
                 p = QtProgress()
             except ImportError:
