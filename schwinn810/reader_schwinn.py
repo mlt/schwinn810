@@ -89,7 +89,11 @@ class SchwinnReader(Reader):
         point['No'] = pt
         point['Time'] = time(hr, min, sec)
         # time = "20{:02d}-{:d}-{:d} {:02d}:{:02d}:{:02d}".format(yr1, mm1, dd1, hr, min, sec)
-        point['Latitude'] = pack_coord(b"\x00" + lat0, b'S')
+        try:
+            point['Latitude'] = pack_coord(b"\x00" + lat0, b'S')
+        except:
+            point['Latitude'] = 0
+            _log.critical('Something is not quite right with latitude of pt=%d imminent sequence "%s"', pt, hexlify(lat0))
         point['Longitude'] = pack_coord(lon0, b'W')
         point['InZone'] = izhh*3600 + izmm*60 + izss
         return point
