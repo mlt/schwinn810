@@ -78,7 +78,7 @@ class SQLiteWriter:
     def _make_table_sql(table, keys, extra=None):
         sql = "CREATE TABLE IF NOT EXISTS {:s} ({:s}{:s})".format(
             table,
-            ",".join( [ " ".join(x) for x in keys.itervalues() ] ),
+            ",".join( [ " ".join(x) for x in keys.values() ] ),
             extra if extra else ""
             )
         return sql
@@ -86,12 +86,12 @@ class SQLiteWriter:
     def add_track(self, track):
         """ Append track to database """
         # select only those we want to keep
-        fields = [f for f in track.iterkeys() if f in self.track_keys]
+        fields = [f for f in track.keys() if f in self.track_keys]
         db_fields = [self.track_keys[f][0] for f in fields]
         sql = """INSERT INTO tracks ({:s}) VALUES ({:s})""".format(
             ",".join(db_fields),
             ",".join(['?'] * len(db_fields)) )
-        values = [v for i, v in track.iteritems() if i in fields]
+        values = [v for i, v in track.items() if i in fields]
         self.track = None
         self.skip = False
         try:
@@ -109,12 +109,12 @@ class SQLiteWriter:
         if self.skip:
             return
         # select only those we want to keep
-        fields = [f for f in lap.iterkeys() if f in self.lap_keys]
+        fields = [f for f in lap.keys() if f in self.lap_keys]
         db_fields = [self.lap_keys[f][0] for f in fields]
         sql = """INSERT INTO laps ({:s}, track_id) VALUES ({:s}, ?)""".format(
             ",".join(db_fields),
             ",".join(['?'] * len(db_fields)) )
-        values = [v for i, v in lap.iteritems() if i in fields]
+        values = [v for i, v in lap.items() if i in fields]
         self.c.execute(sql, values + [self.track])
 
     def begin_points(self, summary):
@@ -127,12 +127,12 @@ class SQLiteWriter:
         if self.skip:
             return
         # select only those we want to keep
-        fields = [f for f in point.iterkeys() if f in self.point_keys]
+        fields = [f for f in point.keys() if f in self.point_keys]
         db_fields = [self.point_keys[f][0] for f in fields]
         sql = """INSERT INTO points ({:s}, track_id) VALUES ({:s}, ?)""".format(
             ",".join(db_fields),
             ",".join(['?'] * len(db_fields)) )
-        values = [v for i, v in point.iteritems() if i in fields]
+        values = [v for i, v in point.items() if i in fields]
         self.c.execute(sql, values + [self.track])
 
     def commit(self):
@@ -142,12 +142,12 @@ class SQLiteWriter:
     def add_waypoint(self, wp):
         """ Append point to a database """
         # select only those we want to keep
-        fields = [f for f in wp.iterkeys() if f in self.waypoint_keys]
+        fields = [f for f in wp.keys() if f in self.waypoint_keys]
         db_fields = [self.waypoint_keys[f][0] for f in fields]
         sql = """INSERT INTO waypoints ({:s}) VALUES ({:s})""".format(
             ",".join(db_fields),
             ",".join(['?'] * len(db_fields)) )
-        values = [v for i, v in wp.iteritems() if i in fields]
+        values = [v for i, v in wp.items() if i in fields]
         try:
             self.c.execute(sql, values)
             self.con.commit()
