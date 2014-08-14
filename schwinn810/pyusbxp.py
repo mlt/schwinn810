@@ -68,8 +68,8 @@ class Usbxp(object):
             self.si = windll.SiUSBxp
         else:
             name = {
-                False: '../../win32/x86/SiUSBXp.dll',
-                True: '../../win32/x64/SiUSBXp.dll'}[sys.maxsize > 2**32]
+                False: 'x86/SiUSBXp.dll',
+                True: 'x64/SiUSBXp.dll'}[sys.maxsize > 2**32]
             self.si = windll.LoadLibrary(join(dirname(__file__),name))
         self.h = HANDLE()
         self.dbg = dbg
