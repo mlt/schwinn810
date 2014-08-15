@@ -8,8 +8,10 @@ import logging
 _log = logging.getLogger(__name__)
 
 open_extra = {}
+mode = "wb"
 if sys.version_info >= (3,0):
     open_extra["newline"] = ''
+    mode = "w"
 
 class Writer:
     """ Default files writer """
@@ -38,20 +40,20 @@ class Writer:
         self.ptsWriter = None
 
         name = os.path.join(self.dir, "waypoints.csv")
-        wptFile = open(name, "wb", **open_extra)
+        wptFile = open(name, mode, **open_extra)
         self.wptWriter = csv.DictWriter(wptFile, self.waypoint_keys)
         self.wptWriter.writeheader()
 
     def add_track(self, track):
         """ Append track to database """
         name = os.path.join(self.dir, track['Track'])
-        trkFile = open('%s.track' % name, "wb", **open_extra)
+        trkFile = open('%s.track' % name, mode, **open_extra)
         trkWriter = csv.DictWriter(trkFile, self.track_keys)
         trkWriter.writeheader()
         trkWriter.writerow(track)
         trkFile.close()
         
-        self.lapFile = open('%s.laps' % name, "wb", **open_extra)
+        self.lapFile = open('%s.laps' % name, mode, **open_extra)
         self.lapWriter = csv.DictWriter(self.lapFile, self.lap_keys)
         self.lapWriter.writeheader()
 
@@ -67,7 +69,7 @@ class Writer:
             self.lapFile = None
         self.track = track
         name = os.path.join(self.dir, track)
-        self.ptsFile = open('%s.points' % name, "wb", **open_extra)
+        self.ptsFile = open('%s.points' % name, mode, **open_extra)
         self.ptsWriter = csv.DictWriter(self.ptsFile, self.point_keys)
         self.ptsWriter.writeheader()
 
@@ -91,7 +93,7 @@ class Writer:
 
     def save_settings(self, s):
         name = os.path.join(self.dir, "settings.csv")
-        f = open(name, "wb", **open_extra)
+        f = open(name, mode, **open_extra)
         w = csv.DictWriter(f, self.settings_keys)
         w.writeheader()
         w.writerow(s)
