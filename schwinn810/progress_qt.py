@@ -1,7 +1,6 @@
 """ Simple QT progress indicator """
 
-from PyQt4.QtGui import QDialog, QMessageBox
-from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QDialog, QMessageBox, QApplication
 from ui_progress import Ui_Dialog
 
 # Shall we use QProgressDialog instead?
@@ -14,11 +13,9 @@ class QtProgress(QDialog):
         self.ui.setupUi(self)
 
         self.show()
-        self._update()
 
     def _update(self):
-        pass
-        # while Gtk.events_pending(): Gtk.main_iteration()
+        QApplication.processEvents()
 
     def track(self, name, at, end, points):
         self.ui.trackBar.setMaximum(end)
