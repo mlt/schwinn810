@@ -5,9 +5,10 @@ SET "GPSBABEL=C:\Programs\GPSBabel\gpsbabel.exe"
 SET "Z7=C:\Program Files\7-Zip\7z.exe"
 
 %~dp0\download.exe ^
- --port COM4 ^
- --hook %~dp0\babelize.cmd ^
+ --hook %~dp0babelize.cmd ^
  --progress qt ^
+ --delete ^
+ --debug ^
  --dir "%DIR%"
 
 "%GPSBABEL%" -i unicsv,utc=5 -f "%DIR%\waypoints.csv" ^
