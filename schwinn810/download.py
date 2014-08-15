@@ -10,7 +10,7 @@ import logging
 
 _log = logging.getLogger(__name__)
 
-def main():
+def main(args=None):
     print("""schwinn810  Copyright (C) 2012 Mikhail Titov
 
 This program comes with ABSOLUTELY NO WARRANTY.
@@ -24,9 +24,12 @@ under the terms of GPL-3 or later version.
                         help='Virtual COM port created by cp201x for Schwinn 810 GPS watch')
     parser.add_argument('--hook', nargs=1, default = [ None ],
                         help='Callback upon track extraction')
-    parser.add_argument('--dir', nargs=1,
-                        default=['.'],
+    parser.add_argument('--dir',
+                        default='.',
                         help='Where to store data')
+    parser.add_argument('--subfolder',
+                        default='%Y',
+                        help='Subfolder to store data in. Uses strftime format.')
     parser.add_argument('--debug', action='store_true',
                         help='Dump all replies in a binary form into a single file schwinn810.bin in TEMP dir')
     parser.add_argument('--delete', action='store_true',
@@ -37,17 +40,15 @@ under the terms of GPL-3 or later version.
     parser.add_argument('--read-settings', action='store_true',
                         help='Retrieve settings from watch')
     parser.add_argument('--shift', type=float, help='Time adjustments in hours to apply if wrong TZ was set')
-    # parser.add_argument('--add-year', dest='add_year', action='store_true',
-    #                    help='Creates subfolder in dir named after the current year')
     # parser.add_argument('--add-id', dest='add_id', action='store_true',
     #                    help='Creates subfolder with device id inside dir but before year')
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     try:
         d = Device(args.port[0], args.debug)
         # w = SQLiteWriter(args.dir[0], args.hook[0])
-        w = Writer(args.dir[0], args.hook[0])
+        w = Writer(args.dir, args.subfolder, args.hook[0])
         p = None
         if args.progress != 'none':
             p = TextProgress()  # default progress

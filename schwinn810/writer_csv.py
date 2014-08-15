@@ -1,7 +1,7 @@
 """ Simple CSV writer for Schwinn 810 """
 
 import sys,os
-import subprocess
+from subprocess import Popen
 import csv
 import logging
 
@@ -29,8 +29,9 @@ class Writer:
                          "zone3_high", "zone_alarm", "x5", "Autolap", "Contrast", "x8", "NightMode", \
                          "y2",  "lb", "in", "24hr", "y6", "y7", "y8", "z1", "z2"]
 
-    def __init__(self, dir, hook=None):
+    def __init__(self, dir, fmt=".", hook=None):
         self.dir = dir
+        self.fmt = fmt
         self.hook = hook
         
         self.lapFile = None
@@ -46,7 +47,13 @@ class Writer:
 
     def add_track(self, track):
         """ Append track to database """
-        name = os.path.join(self.dir, track['Track'])
+        name = os.path.join(self.dir, track['Start'].strftime(self.fmt))
+        try:
+            os.makedirs(name)
+        except OSError:
+            if not os.path.exists(name):
+                raise
+        name = os.path.join(name, track['Track'])
         trkFile = open('%s.track' % name, mode, **open_extra)
         trkWriter = csv.DictWriter(trkFile, self.track_keys)
         trkWriter.writeheader()
@@ -67,9 +74,8 @@ class Writer:
         if self.lapFile:
             self.lapFile.close()
             self.lapFile = None
-        self.track = track
-        name = os.path.join(self.dir, track)
-        self.ptsFile = open('%s.points' % name, mode, **open_extra)
+        self.track = os.path.join(self.dir, summary['Start'].strftime(self.fmt), track)
+        self.ptsFile = open('%s.points' % self.track, mode, **open_extra)
         self.ptsWriter = csv.DictWriter(self.ptsFile, self.point_keys)
         self.ptsWriter.writeheader()
 
@@ -83,9 +89,8 @@ class Writer:
             self.ptsFile.close()
             self.ptsFile = None
         if self.hook:
-            name = os.path.join(self.dir, self.track)
-            _log.info("Calling %s\n\twith %s", self.hook, name)
-            subprocess.Popen([self.hook, name])
+            _log.info("Calling %s\n\twith %s", self.hook, self.track)
+            Popen([self.hook, self.track])
 
     def add_waypoint(self, wp):
         """ Append point to a database """
