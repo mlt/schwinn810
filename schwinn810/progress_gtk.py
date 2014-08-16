@@ -2,13 +2,14 @@
 
 import os.path
 from gi.repository import Gtk
+from pkg_resources import resource_string
 
 class GtkProgress:
 
     def __init__(self):
-        dir = os.path.dirname(__file__)
         builder = Gtk.Builder()
-        builder.add_from_file("{:s}/progress.glade".format(dir))
+        ui = resource_string(__name__, "progress.glade")
+        builder.add_from_string(ui)
         self.window = builder.get_object("progressWindow")
         self.trackCountLabel = builder.get_object("trackCountLabel")
         self.trackBar = builder.get_object("trackBar")
