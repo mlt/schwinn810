@@ -3,7 +3,10 @@
 from __future__ import print_function
 import os, re, stat, tempfile
 import struct
-from serial import Serial, SerialException
+if 'nt' == os.name:
+    from pyusbxp import Usbxp, UsbxpError as SerialException
+else:
+    from serial import Serial, SerialException
 from schwinn810.commands import *
 from schwinn810.utils import unpack_bcd
 import logging
@@ -43,7 +46,12 @@ class Device:
             except OSError as e:
                 pass
         if not self.dump:
-            self.port = Serial(self.device, 115200, timeout=1, writeTimeout=1)
+            if 'nt' == os.name:
+                self.port = Usbxp()#dbg=True)
+                self.port.open()
+                self.port.setbr(115200)
+            else:
+                self.port = Serial(self.device, 115200, timeout=1, writeTimeout=1)
         else:
             _log.warn("Parsing existing dump in {:s}".format(self.device))
             self.port = open(self.device, "rb")

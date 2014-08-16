@@ -10,8 +10,7 @@ sys.path.append('web')
 #"build_exe": "schwinn810_win32",
 #  "include-in-shared-zip": ["C:\\Python27\\lib\\site-packages\\pytz\\zoneinfo", "site-packages\\pytz\\zoneinfo"], \
 #	"zip_includes": [("C:/Python27/Lib/site-packages/pytz/zoneinfo/", "pytz/zoneinfo/")], \
-build_exe_options = {"packages": ["serial.win32"],  \
-                         "optimize": 2} #, "create-shared-zip": True}
+build_exe_options = { "optimize": 2} #, "create-shared-zip": True}
 #"path": [sys.path, "garmin"], "includes": ["UploadGarmin"],
 
 # GUI applications require a different base on Windows (the default is for a
