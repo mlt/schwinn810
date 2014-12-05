@@ -1,4 +1,10 @@
 # News
+
+###### 12/5/2014
+This project is well and alive! I set up a [Google group](https://groups.google.com/forum/#!forum/schwinn810-gps-watch) for announces and such. Feel free to ask questions. I know that some had to register with GitHub just for that.
+
+Latest binary build for Windows from intermediate *dev* branch is available in [releases section](https://github.com/mlt/schwinn810/releases). Note that it _does not_ require VCP driver and should work with whatever Windows installed for you. Uninstall VCP driver if you installed it previously.
+
 ###### 12/27/2012
 Apparently [binary hosting has been deprecated @github](https://github.com/blog/1302-goodbye-uploads).
 If someone is capable of providing Windows (and Mac) binary builds,
@@ -81,6 +87,8 @@ At this point one should not expect an exact copy of software for other OSes.
 2. Improve [data format](https://github.com/mlt/schwinn810/wiki/Data-Format) details.
 3. <del>Write some python (?) code that dumps data from serial port into *CSV*</del>
 4. ~~Make it more [unicsv](http://www.gpsbabel.org/htmldoc-development/fmt_unicsv.html)-friendly so [gpsbabel](http://www.gpsbabel.org) can convert data to [GPX](http://www.gpsbabel.org/htmldoc-development/fmt_gpx.html) and/or [TCX](http://www.gpsbabel.org/htmldoc-development/fmt_gtrnctr.html).~~
-4. Write some GUI, R code
-5. ~~Export to various web sites~~ Can someone help with dailymile.com ?
-6. ~~Move command line options to a configuration file and **make things debconf friendly**~~
+5. Write some GUI, R code
+6. ~~Export to various web sites~~ Can someone help with dailymile.com ?
+7. ~~Move command line options to a configuration file and **make things debconf friendly**~~
+8. Per user JSON-based configuration file and GUI to set things up (WIP)
+9. Watchdog to monitor device notification (when plugged) for Windows and Linux (WIP)
