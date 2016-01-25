@@ -46,7 +46,7 @@ class Writer:
         """ Append track to database """
         name = os.path.join(self.dir, track['Track'])
         trkFile = open('%s.track' % name, "wb", **open_extra)
-        trkWriter = csv.DictWriter(trkFile, self.track_keys)
+        trkWriter = csv.DictWriter(trkFile, self.track_keys,extrasaction='ignore')
         trkWriter.writeheader()
         trkWriter.writerow(track)
         trkFile.close()

@@ -37,12 +37,18 @@ under the terms of GPL-3 or later version.
     parser.add_argument('--read-settings', action='store_true',
                         help='Retrieve settings from watch')
     parser.add_argument('--shift', type=float, help='Time adjustments in hours to apply if wrong TZ was set')
+    parser.add_argument('--logfile', help='file to which logs should be written')
     # parser.add_argument('--add-year', dest='add_year', action='store_true',
     #                    help='Creates subfolder in dir named after the current year')
     # parser.add_argument('--add-id', dest='add_id', action='store_true',
     #                    help='Creates subfolder with device id inside dir but before year')
 
     args = parser.parse_args()
+
+    if args.logfile:
+      logging.basicConfig(level=logging.DEBUG, filename=args.logfile, filemode='w')
+    else:
+      logging.basicConfig(level=logging.WARNING)
 
     try:
         d = Device(args.port[0], args.debug)
@@ -84,5 +90,4 @@ under the terms of GPL-3 or later version.
 if __name__ == '__main__':
     # FORMAT = FORMAT = '%(asctime)-15s %(message)s'
     # logging.basicConfig(level=logging.DEBUG, format=FORMAT)
-    logging.basicConfig(level=logging.WARNING)
     main()
