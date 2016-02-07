@@ -55,6 +55,7 @@ class Device:
         if self.connected:
             return
         if not self.dump:
+            self.port.write(SOLEUS_DISCONNECT)
             self.port.write(CONNECT)
 
         raw = self.port.read(0x20)
@@ -107,12 +108,22 @@ class Device:
                 if 'End' in track:
                     track['End'] += self.shift
 
-            track['LapInfo'] = []
+            track['LapData'] = []
+            track['Distance'] = 0
+            previous_lap = {'Time' : 0, 'Distance' : 0, 'kcal': 0, 'Beats' : 0}
             for j in range(track['Laps']):
                 lap = self.reader.read_lap()
+                track['Distance'] = lap['Distance']
                 lap['Track'] = track['Track']
                 _log.debug("Lap={:d}, Beats={:d}, Elevation={:f}".format(lap['Lap'], lap['Beats'], lap['Elevation']))
-                track['LapInfo'].append(lap)
+                lap['PointData'] = []
+                lap['DurationSecs'] = lap['Time'] - previous_lap['Time']
+                lap['LengthMeters'] = (lap['Distance'] - previous_lap['Distance'])*1e3
+                lap['kcalDelta'] = (lap['kcal'] - previous_lap['kcal'])
+                lap['BeatsDelta'] = (lap['Beats'] - previous_lap['Beats'])
+                previous_lap = lap
+                
+                track['LapData'].append(lap)
         return tracks_with_points
 
     def read(self, writer, progress=None):
@@ -127,39 +138,44 @@ class Device:
 
         tracks_with_points = self._read_tracks(tracks)
 
-        print("Track#\tStarted At\t\tDur.\tSpeed\t\tLaps")
-        n = 1
-        for twp in tracks_with_points:
-          print("%d\t%s\t%s\t%f\t%d" % (n, twp['Start'], twp['End'] - twp['Start'], twp['Speed'], twp['Laps']))
-          n += 1
 
-        chosentracklist = raw_input("choose tracks to download (eg. 1,3,4):")
+        #print("Track#\tStarted At\t\tDur.\tSpeed\t\tLaps\tPoints\tDistance")
+        ##n = 1
+        #for twp in tracks_with_points:
+          #print("%d\t%s\t%s\t%.1fkm/h\t%d\t%d\t%.2fkm" % (n, twp['Start'], twp['End'] - twp['Start'], twp['Speed'], twp['Laps'], twp['Points'], twp['Distance']))
+          #n += 1
+
+        #chosentracklist = raw_input("choose tracks to download (eg. 1,3,4):")
         #tracks = (int(x.strip(' ') for x in tracklist.split(","))
-        chosentracks = [(int(x.strip()) - 1) for x in chosentracklist.split(",")]
+        #chosentracks = [(int(x.strip()) - 1) for x in chosentracklist.split(",")]
 
-        print(chosentracks)
+        #print(chosentracks)
         
 
         # now all track points
         # for tracks containing them only!
-        track_no = 0
+        track_no = 1
         for track in tracks_with_points:
-            chosen = False
-            if track_no in chosentracks:
-              chosen = True
-              track = tracks_with_points[track_no]
-              writer.add_track(track)
-              for lapinfo in track['LapInfo']:
-                writer.add_lap(lapinfo)
+            #chosen = False
+            _log.debug("reading track %d" % track_no)
+            start = datetime.now()
+            #if track_no in chosentracks:
+            #  chosen = True
+            #track = tracks_with_points[track_no]
+            #for lapinfo in track['LapData']:
+            current_lap_index = 0  #track['LapData'][0]
+            current_lap = track['LapData'][0]
+            current_lap_end = track['LapData'][0]['Distance']
+            current_lap['Start'] = track['Start']
 
-              # if isinstance(self.reader, SchwinnReader):
-              summary_dummy = self.reader.read_points_summary()
-              _log.info("Fetching %d points from %s" % (track['Points'], track['Track']))
-              if progress:
-                  progress.track(track['Track'], track_no, len(tracks_with_points), track['Points'])
-              writer.begin_points(track)
+            # if isinstance(self.reader, SchwinnReader):
+            summary_dummy = self.reader.read_points_summary()
+            _log.info("Fetching %d points from %s" % (track['Points'], track['Track']))
+            _log.debug("Adding points to first lap: {:s}".format(str(current_lap)))
+            if progress:
+                progress.track(track['Track'], track_no, len(tracks_with_points), track['Points'])
   
-              for thePoint in range(track['Points']):
+            for thePoint in range(track['Points']):
                   if progress:
                       progress.point(thePoint, track['Points'])
                   point = self.reader.read_point()
@@ -170,18 +186,45 @@ class Device:
                           point['Time'] += timedelta(days=1)
                       if self.shift:
                           point['Time'] += self.shift
-                      writer.add_point(point)
-              writer.commit()
-            else:
-              summary_dummy = self.reader.read_points_summary()
-              raw = self.port.read(0x24 * track['Points'])
+                      #making this a while loop rather than an if statement skips over laps with zero points in them.
+                      while(point['Distance'] > current_lap_end):
+                          current_lap_index += 1
+                          current_lap = track['LapData'][current_lap_index]
+                          current_lap_end = current_lap['Distance']
+                          current_lap['Start'] = point['Time']
+                          _log.debug("switch to lap: %s at point distance %f" % (str(current_lap), point['Distance']))
+                      if(point['Elevation'] > 0):
+                          current_lap['HasElevation'] = True
+                      current_lap['PointData'].append(point)
+
+            #if there are laps we haven't read points for then presumably they have no points.  Set the start time to the time of the last point
+            while current_lap_index < len(track['LapData']) - 1:
+              current_lap_index += 1
+              track['LapData'][current_lap_index]['Start'] = point['Time']
+              
+
+            writer.add_track(track)
+            #else:
+              #summary_dummy = self.reader.read_points_summary()
+              #bytesize = 0x24 * track['Points']
+              #_log.debug("skipping %d points = %d bytes from track %d" % (track['Points'], bytesize, track_no))
+              #raw = self.reader.read(bytesize)
             track_no += 1
+            end = datetime.now()
+            _log.debug("finished points for track %d in %d s" % (track_no, (end - start).total_seconds()))
 
         for wp in range(waypoints):
             wpt = self.reader.read_waypoint()
             writer.add_waypoint(wpt)
 
         self.reader.read_end()
+
+        print("Track#\tStarted At\t\tDur.\tSpeed\t\tLaps\tPoints\tDistance")
+        n = 1
+        for twp in tracks_with_points:
+          print("%s\t%s\t%s\t%.1fkm/h\t%d\t%d\t%.2fkm" % (twp['Track'], twp['Start'], twp['End'] - twp['Start'], twp['Speed'], twp['Laps'], twp['Points'], twp['Distance']))
+          n += 1
+
 
     def read_settings(self, writer):
         if not self.dump:

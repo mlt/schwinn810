@@ -3,6 +3,8 @@ from __future__ import print_function
 from core.device import Device, SerialException
 from core.writer_csv import Writer
 # from extra.writer_sqlite import SQLiteWriter
+from core.writer_csv import WriterCSV
+from core.writer_tcx import WriterTCX
 from core.progress_text import TextProgress
 from datetime import timedelta
 import argparse, os, sys
@@ -38,6 +40,9 @@ under the terms of GPL-3 or later version.
                         help='Retrieve settings from watch')
     parser.add_argument('--shift', type=float, help='Time adjustments in hours to apply if wrong TZ was set')
     parser.add_argument('--logfile', help='file to which logs should be written')
+    parser.add_argument('--writer', choices=['tcx', 'csv'],
+                        default=['tcx'],
+                        help='The output writer to use')
     # parser.add_argument('--add-year', dest='add_year', action='store_true',
     #                    help='Creates subfolder in dir named after the current year')
     # parser.add_argument('--add-id', dest='add_id', action='store_true',
@@ -53,7 +58,10 @@ under the terms of GPL-3 or later version.
     try:
         d = Device(args.port[0], args.debug)
         # w = SQLiteWriter(args.dir[0], args.hook[0])
-        w = Writer(args.dir[0], args.hook[0])
+        if args.writer == 'tcx':
+          w = WriterTCX(args.dir[0], args.hook[0])
+        else:
+          w = WriterCSV(args.dir[0], args.hook[0])
         p = None
         if args.progress != 'none':
             p = TextProgress()  # default progress
