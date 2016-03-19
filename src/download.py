@@ -9,6 +9,7 @@ from core.progress_text import TextProgress
 from datetime import timedelta
 import argparse, os, sys
 import logging
+from web.tcx2strava import strava_upload
 
 _log = logging.getLogger(__name__)
 
@@ -43,12 +44,17 @@ under the terms of GPL-3 or later version.
     parser.add_argument('--writer', choices=['tcx', 'csv'],
                         default=['tcx'],
                         help='The output writer to use')
+    parser.add_argument('--strava', action='store_true', help='upload written files to strava. (only works with --writer tcx)')
     # parser.add_argument('--add-year', dest='add_year', action='store_true',
     #                    help='Creates subfolder in dir named after the current year')
     # parser.add_argument('--add-id', dest='add_id', action='store_true',
     #                    help='Creates subfolder with device id inside dir but before year')
 
     args = parser.parse_args()
+
+    if args.strava and args.writer != 'tcx':
+      print("Error:  You must use the tcx writer if you want to upload to strava")
+      sys.exit(1)
 
     if args.logfile:
       logging.basicConfig(level=logging.DEBUG, filename=args.logfile, filemode='w')
@@ -83,12 +89,29 @@ under the terms of GPL-3 or later version.
             d.shift = timedelta(hours=args.shift)
             _log.info("Applying {:f} hours shift".format(args.shift))
         d.read(w, p)
+
+        if(len(w.tracks_written()) > 0 ):
+          print("Track#\tStarted At\t\tDur.\tSpeed\t\tLaps\tPoints\tDistance")
+          n = 1
+          for track in w.tracks_written():
+            print("%d\t%s\t%s\t%.1fkm/h\t%d\t%d\t%.2fkm" % (n, track['Start'], track['End'] - track['Start'], track['Speed'], track['Laps'], track['Points'], track['Distance']))
+            n += 1
+
+          if args.strava:
+            chosentracklist = raw_input("choose tracks to upload (eg. 1,3,4):")
+            chosentrackints = [(int(x.strip()) - 1) for x in chosentracklist.split(",")]
+            chosentracks = [w.tracks_written()[n]['Filename'] for n in chosentrackints]
+
+            strava_upload(chosentracks)
+
+        
         if args.read_settings:
             _log.info("Reading settings")
             d.read_settings(w)
         if args.delete:
             d.clear()
         d.close()
+
     except SerialException as e:
         _log.fatal("Port can't be opened :(")
         sys.exit(-1)

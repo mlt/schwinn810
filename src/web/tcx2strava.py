@@ -7,7 +7,6 @@
 #   username: your_mmf_user_name
 #   password: your_password
 
-import argparse
 #from antd import connect        # requires python-poster
 #from mmf import MMF
 #from yaml import load, dump
@@ -17,6 +16,7 @@ import BaseHTTPServer
 from stravalib.client import Client
 import requests
 import yaml
+import webbrowser
 
 
 class StravaCallbackServer(BaseHTTPServer.HTTPServer):
@@ -77,7 +77,8 @@ def strava_authorize(client):
 
     print( "opening " + authorize_url)
 
-    os.system("xdg-open '" + authorize_url + "'")
+    #os.system("xdg-open '" + authorize_url + "'")
+    webbrowser.open(authorize_url, new=2)
     
 
     server_address = ('localhost', localwebserverport)
@@ -98,16 +99,13 @@ def strava_authorize(client):
 
     
 
-def main():
+def strava_upload(tcxfiles, login=None):
     logging.basicConfig(level=logging.DEBUG)
 
     client = Client()
 
     creds = read_strava_auth_file()
-    if args.login :
-      login = args.login
-    else:
-      login = None
+    if login == None:
       if len(creds) > 0:
         print("found strava credentials for: " )
         n = 0
@@ -126,7 +124,7 @@ def main():
     else:
       strava_authorize(client)
 
-    for tcxfile in args.tcx:
+    for tcxfile in tcxfiles:
       r = post_file_to_strava(client, tcxfile)
       if(r.status_code == 401):
         print("invalid auth token, rerequesting authorization")
@@ -139,9 +137,9 @@ def main():
 
 
 if __name__ =='__main__':
+    import argparse
     parser = argparse.ArgumentParser(description='Uploads TCX to the Internets')
     parser.add_argument(nargs='+', dest='tcx', help='TCX files to upload')
     parser.add_argument('--login', dest='login', help='email address to use as strava login')
     args = parser.parse_args()
-    #print "these are the tcx " + str(args.tcx)
-    main()
+    strava_upload(args.tcx, args.login)

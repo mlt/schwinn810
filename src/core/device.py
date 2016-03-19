@@ -139,18 +139,6 @@ class Device:
         tracks_with_points = self._read_tracks(tracks)
 
 
-        #print("Track#\tStarted At\t\tDur.\tSpeed\t\tLaps\tPoints\tDistance")
-        ##n = 1
-        #for twp in tracks_with_points:
-          #print("%d\t%s\t%s\t%.1fkm/h\t%d\t%d\t%.2fkm" % (n, twp['Start'], twp['End'] - twp['Start'], twp['Speed'], twp['Laps'], twp['Points'], twp['Distance']))
-          #n += 1
-
-        #chosentracklist = raw_input("choose tracks to download (eg. 1,3,4):")
-        #tracks = (int(x.strip(' ') for x in tracklist.split(","))
-        #chosentracks = [(int(x.strip()) - 1) for x in chosentracklist.split(",")]
-
-        #print(chosentracks)
-        
 
         # now all track points
         # for tracks containing them only!
@@ -219,11 +207,11 @@ class Device:
 
         self.reader.read_end()
 
-        print("Track#\tStarted At\t\tDur.\tSpeed\t\tLaps\tPoints\tDistance")
-        n = 1
-        for twp in tracks_with_points:
-          print("%s\t%s\t%s\t%.1fkm/h\t%d\t%d\t%.2fkm" % (twp['Track'], twp['Start'], twp['End'] - twp['Start'], twp['Speed'], twp['Laps'], twp['Points'], twp['Distance']))
-          n += 1
+        #print("Track#\tStarted At\t\tDur.\tSpeed\t\tLaps\tPoints\tDistance")
+        #n = 1
+        #for twp in tracks_with_points:
+          #print("%s\t%s\t%s\t%.1fkm/h\t%d\t%d\t%.2fkm" % (twp['Track'], twp['Start'], twp['End'] - twp['Start'], twp['Speed'], twp['Laps'], twp['Points'], twp['Distance']))
+          #n += 1
 
 
     def read_settings(self, writer):

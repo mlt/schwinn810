@@ -26,5 +26,9 @@ class Writer:
       """ this should be implemented, but not sure what it does """
       raise NotImplementedError( "Should have implemented this" )
 
+    def tracks_written(self):
+      return []
+      
+
 if __name__ == '__main__':
     pass

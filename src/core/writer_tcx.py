@@ -42,6 +42,7 @@ class WriterTCX(Writer):
 
         self.ptsFile = None
         self.ptsWriter = None
+        self.tracks_processed = []
 
         #name = os.path.join(self.dir, "waypoints.csv")
         #wptFile = open(name, "wb", **open_extra)
@@ -53,8 +54,9 @@ class WriterTCX(Writer):
 
     def add_track(self, track):
         """ Append track to database """
-        name = os.path.join(self.dir, track['Track'])
-        self.trkFile = open('%s.tcx' % name, "wb", **open_extra)
+        name = os.path.join(self.dir, '%s.tcx' % track['Track'])
+        track['Filename'] = name
+        self.trkFile = open(name, "wb", **open_extra)
         self.open_track(track)
 
         for lap in track['LapData']:
@@ -62,6 +64,8 @@ class WriterTCX(Writer):
 
         self.close_track()
         self.trkFile.close()
+
+        self.tracks_processed.append(track)
 
 
     def open_track(self, track):
@@ -161,6 +165,9 @@ class WriterTCX(Writer):
         w = csv.DictWriter(f, self.settings_keys)
         w.writeheader()
         w.writerow(s)
+
+    def tracks_written(self):
+        return self.tracks_processed
 
 if __name__ == '__main__':
     pass
