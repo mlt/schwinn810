@@ -9,6 +9,7 @@ from core.progress_text import TextProgress
 from datetime import timedelta
 import argparse, os, sys
 import logging
+from tabulate import tabulate
 from web.tcx2strava import strava_upload
 
 _log = logging.getLogger(__name__)
@@ -34,17 +35,20 @@ under the terms of GPL-3 or later version.
                         help='Dump all replies in a binary form into a single file schwinn810.bin in TEMP dir')
     parser.add_argument('--delete', action='store_true',
                         help='Delete all data from watches after download?')
+    parser.add_argument('--logfile', help='file to which logs should be written')
     parser.add_argument('--progress', choices=['none', 'text', 'gtk', 'qt'],
                         default=['text'],
                         help='Progress indicator')
     parser.add_argument('--read-settings', action='store_true',
                         help='Retrieve settings from watch')
     parser.add_argument('--shift', type=float, help='Time adjustments in hours to apply if wrong TZ was set')
-    parser.add_argument('--logfile', help='file to which logs should be written')
+    parser.add_argument('--strava', action='store_true', help='upload written files to strava. (only works with --writer tcx)')
     parser.add_argument('--writer', choices=['tcx', 'csv'],
                         default=['tcx'],
                         help='The output writer to use')
-    parser.add_argument('--strava', action='store_true', help='upload written files to strava. (only works with --writer tcx)')
+    parser.add_argument('--watch-type', choices=['soleus', 'schwinn', 'cresta'],
+                        default=None,
+                        help='The type of watch that you are trying to download data from')
     # parser.add_argument('--add-year', dest='add_year', action='store_true',
     #                    help='Creates subfolder in dir named after the current year')
     # parser.add_argument('--add-id', dest='add_id', action='store_true',
@@ -62,7 +66,7 @@ under the terms of GPL-3 or later version.
       logging.basicConfig(level=logging.WARNING)
 
     try:
-        d = Device(args.port[0], args.debug)
+        d = Device(device=args.port[0], debug=args.debug, watch_type=args.watch_type)
         # w = SQLiteWriter(args.dir[0], args.hook[0])
         if args.writer == 'tcx':
           w = WriterTCX(args.dir[0], args.hook[0])
@@ -91,12 +95,13 @@ under the terms of GPL-3 or later version.
         d.read(w, p)
 
         if(len(w.tracks_written()) > 0 ):
-          print("Track#\tStarted At\t\tDur.\tSpeed\t\tLaps\tPoints\tDistance")
+          table_rows = []
           n = 1
           for track in w.tracks_written():
-            print("%d\t%s\t%s\t%.1fkm/h\t%d\t%d\t%.2fkm" % (n, track['Start'], track['End'] - track['Start'], track['Speed'], track['Laps'], track['Points'], track['Distance']))
+            table_rows.append([n, track['Track'], track['Start'], track['End'] - track['Start'], "%.1fkm/h" % (track['Speed']), track['Laps'], track['Points'], "%.2fkm" % (track['Distance'])])
             n += 1
-
+          print(tabulate(table_rows, headers=["Track","Label","Started At","Duration","Speed","Laps","Points","Distance"]))
+            
           if args.strava:
             chosentracklist = raw_input("choose tracks to upload (eg. 1,3,4):")
             chosentrackints = [(int(x.strip()) - 1) for x in chosentracklist.split(",")]

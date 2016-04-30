@@ -131,8 +131,8 @@ def strava_upload(tcxfiles, login=None):
         strava_authorize(client)
         r = post_file_to_strava(client, tcxfile)
 
-      if(r.status_code != 200):
-        print("error uploading file")
+      if(r.status_code not in [200,201]):
+        print("error uploading file.  HTTP response code: " + str(r.status_code))
         print(str(r.text))
 
 

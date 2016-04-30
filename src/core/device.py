@@ -20,9 +20,15 @@ class NotConnected(Exception): pass
 class Device:
     """ Device class to communicate with Schwinn 810 """
 
-    def __init__(self, device=None, debug=False):
-        self.device = device
-        self._debug = debug
+    def __init__(self, **kwargs):
+        self.device = kwargs['device']
+        self._debug = kwargs['debug']
+        self.watch_type = kwargs['watch_type']
+        if self.watch_type: 
+          self.watch_type = self.watch_type.lower()
+          if self.watch_type not in ['soleus', 'schwinn', 'cresta']:
+            raise UnknownWatchType("don't know what to do for watch type " + self.watch_type)
+
         self.dump = False       # are we reading previously backed up dump?
         self.connected = False
         self.port = None        # device handle
@@ -72,6 +78,7 @@ class Device:
         (ee, e1, e2, e3, bcd1, bcd2, bcd3, serial, v1, v2, sign1) = struct.unpack("sBBBBBB6s6s7s2xI", raw)
         _log.debug("read header")
         _log.debug("{:s} 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x} 0x{:x} {:s} {:s} {:s} 0x{:x}".format(ee, e1, e2, e3, bcd1, bcd2, bcd3, serial, v1, v2, sign1))
+
         if sign1:               # 0x0130ff00
             raw = self.port.read(4)
             if self._debug:
@@ -83,16 +90,35 @@ class Device:
                 # print("We are reading something wrong. Are you trying to communicate with another device?", file=sys.stderr)
                 # exit(-1)
             if sign1 == 0x243601:  #kb: think maybe we need something else to identify soleus.  This might be specific to my watch.  Perhaps the M11165 string?
-              self.reader = SoleusReader(self.port, self.backup)
+              self.detected_watch_type = 'soleus'
             else:
-              self.reader = SchwinnReader(self.port, self.backup)
+              self.detected_watch_type = 'schwinn'
+            
         else:   # Cresta/Mio
-            self.reader = CrestaReader(self.port, self.backup)
-            _log.warn("File a bug if you are not using Cresta or Mio watch!")
-        id = "{0:s} {1:s} {2:s} {3:02d} {4:02d} {5:02d} {6:02d} {7:02d} {8:02d}" \
-            .format(serial.decode('ascii'), v1.decode('ascii'), ee.decode('ascii'), \
-                        e1, e2, e3, unpack_bcd(bcd1), unpack_bcd(bcd2), unpack_bcd(bcd3))
-        _log.info("Found %s" % id)
+          self.detected_watch_type = 'cresta'
+
+
+        if self.watch_type:
+          if self.watch_type != self.detected_watch_type:
+            _log.warn("Detected watch type " + self.detected_watch_type + " but using watch type " + self.watch_type)
+            print("Detected watch type " + self.detected_watch_type + " but using watch type " + self.watch_type)
+        else:
+          self.watch_type = self.detected_watch_type
+
+        if self.watch_type == 'soleus':
+          self.reader = SoleusReader(self.port, self.backup)
+        elif self.watch_type == 'schwinn':
+          self.reader = SchwinnReader(self.port, self.backup)
+        elif self.watch_type == 'cresta':
+          self.reader = CrestaReader(self.port, self.backup)
+          _log.warn("File a bug if you are not using Cresta or Mio watch!")
+          id = "{0:s} {1:s} {2:s} {3:02d} {4:02d} {5:02d} {6:02d} {7:02d} {8:02d}" \
+          .format(serial.decode('ascii'), v1.decode('ascii'), ee.decode('ascii'), \
+                      e1, e2, e3, unpack_bcd(bcd1), unpack_bcd(bcd2), unpack_bcd(bcd3))
+          _log.info("Found %s" % id)
+        else:
+          raise UnknownWatchType("don't know what to do for watch type " + self.watch_type)
+
 
     def _read_tracks(self, count):
         tracks_with_points = []

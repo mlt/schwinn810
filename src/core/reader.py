@@ -5,6 +5,7 @@ _log = logging.getLogger(__name__)
 
 class NotConnected(Exception): pass
 class BadSignature(Exception): pass
+class UnknownWatchType(Exception): pass
 class BadRead(Exception): pass
 
 class Reader(object):
