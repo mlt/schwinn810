@@ -80,15 +80,15 @@ with open(base+".track") as t:
                 print("""     <Trackpoint>
       <Time>{:s}</Time>
       <Position>
-       <LatitudeDegrees>{:s}</LatitudeDegrees>
-       <LongitudeDegrees>{:s}</LongitudeDegrees>
+       <LatitudeDegrees>{:0.6f}</LatitudeDegrees>
+       <LongitudeDegrees>{:0.6f}</LongitudeDegrees>
       </Position>
-     <DistanceMeters>{:f}</DistanceMeters>""".format(time.astimezone(utc).strftime("%Y-%m-%dT%H:%M:%SZ"), \
-                                                          thePoint["Latitude"], \
-                                                          thePoint["Longitude"], \
+      <DistanceMeters>{:f}</DistanceMeters>""".format(time.astimezone(utc).strftime("%Y-%m-%dT%H:%M:%SZ"), \
+                                                          float(thePoint["Latitude"]), \
+                                                          float(thePoint["Longitude"]), \
                                                           dist))
                 if thePoint['Elevation']:
-                    print("""<AltitudeMeters>{:s}</AltitudeMeters>""".format(
+                    print("""      <AltitudeMeters>{:s}</AltitudeMeters>""".format(
                             thePoint["Elevation"]))
                 heart = int(float(thePoint["Heart"]))
                 if heart > 0:

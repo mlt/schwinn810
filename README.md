@@ -1,11 +1,15 @@
 # News
 
-###### 12/5/2014
+###### 2016-04-30
+
+Project modified to include a tcx writer and an option to upload the TCX files to strava. Also added support for soleus watches (probably - it works with mine, would be nice to check if it worked with somebody else's watch. kb.) providing functionality equivalent to [Soleus Sync](http://www.soleusrunning.com/pages/software-downloads) for linux.
+
+###### 2014-05-22
 This project is well and alive! I set up a [Google group](https://groups.google.com/forum/#!forum/schwinn810-gps-watch) for announces and such. Feel free to ask questions. I know that some had to register with GitHub just for that.
 
 Latest binary build for Windows from intermediate *dev* branch is available in [releases section](https://github.com/mlt/schwinn810/releases). Note that it _does not_ require VCP driver and should work with whatever Windows installed for you. Uninstall VCP driver if you installed it previously.
 
-###### 12/27/2012
+###### 2012-12-27
 Apparently [binary hosting has been deprecated @github](https://github.com/blog/1302-goodbye-uploads).
 If someone is capable of providing Windows (and Mac) binary builds,
 please [create an issue](https://github.com/mlt/schwinn810/issues).
@@ -83,6 +87,7 @@ I upload binary builds for MS Windows from time to time.
 
 At this point one should not expect an exact copy of software for other OSes.
 
+0. Turn this into a python module that can be installed with pip etc. Currently have python dependencies on logging, tabulate
 1. <del> Code proxy and transcribe communication making it possible for others to develop software independently.</del>
 2. Improve [data format](https://github.com/mlt/schwinn810/wiki/Data-Format) details.
 3. <del>Write some python (?) code that dumps data from serial port into *CSV*</del>
@@ -92,3 +97,5 @@ At this point one should not expect an exact copy of software for other OSes.
 7. ~~Move command line options to a configuration file and **make things debconf friendly**~~
 8. Per user JSON-based configuration file and GUI to set things up (WIP)
 9. Watchdog to monitor device notification (when plugged) for Windows and Linux (WIP)
+10. Test with a soleus watch other than GPS 3.0 to see if the autodetect actually works
+11. Write unit tests...
